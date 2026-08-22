@@ -1,0 +1,28 @@
+# dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# credentials
+.env
+.env.*
+
+# testing
+coverage/
+
+# production
+dist/
+build/
+.next/
+
+# misc
+尊.DS_Store
+.nx/
+.vscode/
+!.vscode/extensions.json
+.idea/
+
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
