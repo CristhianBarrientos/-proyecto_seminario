@@ -1,39 +1,53 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonBackButton, IonButtons,
   IonItem, IonLabel, IonTextarea, IonInput, IonButton, IonLoading, IonText, IonNote,
+  IonList, IonIcon,
 } from '@ionic/react';
+import { documentTextOutline, trashOutline, cloudUploadOutline } from 'ionicons/icons';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabaseClient';
 import { getFriendlyErrorMessage } from '../lib/errorMessages';
 
+interface VerificationDoc {
+  path: string;
+  name: string;
+}
+
 const EditProfessionalProfile: React.FC = () => {
   const { user } = useAuth();
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [bio, setBio] = useState('');
   const [lat, setLat] = useState('');
   const [lng, setLng] = useState('');
   const [radius, setRadius] = useState('10');
+  const [docs, setDocs] = useState<VerificationDoc[]>([]);
+  const [uploading, setUploading] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
 
-  useEffect(() => {
+  const loadProfile = async () => {
     if (!user) return;
-    supabase
+    const { data, error } = await supabase
       .from('professional_profiles')
-      .select('bio, service_radius_km')
+      .select('bio, service_radius_km, verification_docs')
       .eq('profile_id', user.id)
-      .maybeSingle()
-      .then(({ data, error }) => {
-        if (error) {
-          setError(getFriendlyErrorMessage(error));
-          return;
-        }
-        if (data) {
-          setBio(data.bio ?? '');
-          setRadius(String(data.service_radius_km ?? 10));
-        }
-      });
+      .maybeSingle();
+
+    if (error) {
+      setError(getFriendlyErrorMessage(error));
+      return;
+    }
+    if (data) {
+      setBio(data.bio ?? '');
+      setRadius(String(data.service_radius_km ?? 10));
+      setDocs((data.verification_docs as VerificationDoc[]) ?? []);
+    }
+  };
+
+  useEffect(() => {
+    loadProfile();
   }, [user]);
 
   const handleSave = async () => {
@@ -48,9 +62,7 @@ const EditProfessionalProfile: React.FC = () => {
       service_radius_km: Number(radius),
     };
 
-    // Solo mandamos ubicación si el usuario llenó lat/lng
-    // Formato EWKT que PostGIS entiende: "SRID=4326;POINT(longitud latitud)"
-    // OJO: es longitud primero, luego latitud - al revés de como se suele decir.
+    // Formato EWKT: "SRID=4326;POINT(longitud latitud)" - longitud primero
     if (lat && lng) {
       payload.location = `SRID=4326;POINT(${lng} ${lat})`;
     }
@@ -67,6 +79,58 @@ const EditProfessionalProfile: React.FC = () => {
     }
 
     setSuccess(true);
+  };
+
+  const handleFileUpload = async (file: File) => {
+    if (!user) return;
+    setUploading(true);
+    setError('');
+
+    const path = `${user.id}/${Date.now()}_${file.name}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from('verification-docs')
+      .upload(path, file);
+
+    if (uploadError) {
+      setUploading(false);
+      setError(getFriendlyErrorMessage(uploadError));
+      return;
+    }
+
+    const newDocs = [...docs, { path, name: file.name }];
+
+    const { error: updateError } = await supabase
+      .from('professional_profiles')
+      .upsert({ profile_id: user.id, verification_docs: newDocs }, { onConflict: 'profile_id' });
+
+    setUploading(false);
+
+    if (updateError) {
+      setError(getFriendlyErrorMessage(updateError));
+      return;
+    }
+
+    setDocs(newDocs);
+  };
+
+  const handleDeleteDoc = async (doc: VerificationDoc) => {
+    if (!user) return;
+
+    await supabase.storage.from('verification-docs').remove([doc.path]);
+
+    const newDocs = docs.filter((d) => d.path !== doc.path);
+
+    const { error } = await supabase
+      .from('professional_profiles')
+      .upsert({ profile_id: user.id, verification_docs: newDocs }, { onConflict: 'profile_id' });
+
+    if (error) {
+      setError(getFriendlyErrorMessage(error));
+      return;
+    }
+
+    setDocs(newDocs);
   };
 
   return (
@@ -94,7 +158,7 @@ const EditProfessionalProfile: React.FC = () => {
           <IonInput type="number" value={lng} onIonInput={(e) => setLng(e.detail.value!)} placeholder="ej. -90.5231" />
         </IonItem>
         <IonNote className="ion-padding-start">
-          Tip: en Google Maps, clic derecho sobre tu ubicación → copia las coordenadas que aparecen arriba.
+          Tip: en Google Maps, clic derecho sobre tu ubicación → copia las coordenadas.
         </IonNote>
 
         <IonItem>
@@ -107,6 +171,46 @@ const EditProfessionalProfile: React.FC = () => {
 
         <IonButton expand="block" className="ion-margin-top" onClick={handleSave}>
           Guardar
+        </IonButton>
+
+        <IonItem className="ion-margin-top" lines="none">
+          <IonLabel>
+            <h2>Documentos de verificación</h2>
+            <p>Sube tu DPI, licencia o certificación para obtener el sello "Verificado".</p>
+          </IonLabel>
+        </IonItem>
+
+        <IonList>
+          {docs.map((doc) => (
+            <IonItem key={doc.path}>
+              <IonIcon icon={documentTextOutline} slot="start" />
+              <IonLabel>{doc.name}</IonLabel>
+              <IonButton slot="end" fill="clear" color="danger" onClick={() => handleDeleteDoc(doc)}>
+                <IonIcon icon={trashOutline} />
+              </IonButton>
+            </IonItem>
+          ))}
+        </IonList>
+
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="application/pdf,image/*"
+          style={{ display: 'none' }}
+          onChange={(e) => {
+            const file = e.target.files?.[0];
+            if (file) handleFileUpload(file);
+          }}
+        />
+        <IonButton
+          expand="block"
+          fill="outline"
+          className="ion-margin-top"
+          disabled={uploading}
+          onClick={() => fileInputRef.current?.click()}
+        >
+          <IonIcon icon={cloudUploadOutline} slot="start" />
+          {uploading ? 'Subiendo...' : 'Subir documento'}
         </IonButton>
 
         <IonLoading isOpen={loading} message="Guardando..." />

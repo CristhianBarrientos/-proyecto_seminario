@@ -6,12 +6,14 @@ import Bookings from './pages/Bookings';
 import Profile from './pages/Profile';
 import EditProfessionalProfile from './pages/EditProfessionalProfile';
 import MyServices from './pages/MyServices';
+import ProfessionalDetail from './pages/ProfessionalDetail';
 
 const Tabs: React.FC = () => {
   return (
     <IonTabs>
       <IonRouterOutlet>
         <Route path="/tabs/home" element={<Home />} />
+        <Route path="/tabs/home/:id" element={<ProfessionalDetail />} />
         <Route path="/tabs/bookings" element={<Bookings />} />
         <Route path="/tabs/profile" element={<Profile />} />
         <Route path="/tabs/profile/edit" element={<EditProfessionalProfile />} />

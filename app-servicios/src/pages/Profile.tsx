@@ -1,11 +1,12 @@
 import {
   IonContent, IonHeader, IonPage, IonTitle, IonToolbar,
-  IonList, IonItem, IonLabel, IonButton, IonIcon, IonBadge, IonText,
+  IonList, IonItem, IonLabel, IonButton, IonIcon, IonBadge, IonText, IonToggle,
 } from '@ionic/react';
-import { logOutOutline } from 'ionicons/icons';
+import { logOutOutline, moonOutline, sunnyOutline } from 'ionicons/icons';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { useTheme } from '../contexts/ThemeContext';
 import { supabase } from '../lib/supabaseClient';
 import { getFriendlyErrorMessage } from '../lib/errorMessages';
 
@@ -16,6 +17,7 @@ interface ProfileData {
 
 const Profile: React.FC = () => {
   const { user, signOut } = useAuth();
+  const { isDark, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [error, setError] = useState('');
@@ -63,10 +65,16 @@ const Profile: React.FC = () => {
               <p>{user?.email}</p>
             </IonLabel>
             {profile?.role && (
-              <IonBadge color={profile.role === 'profesional' ? 'success' : 'medium'} slot="end">
+              <IonBadge color={profile.role === 'profesional' ? 'tertiary' : 'medium'} slot="end">
                 {profile.role === 'profesional' ? 'Profesional' : 'Cliente'}
               </IonBadge>
             )}
+          </IonItem>
+
+          <IonItem>
+            <IonIcon icon={isDark ? moonOutline : sunnyOutline} slot="start" />
+            <IonLabel>Modo noche</IonLabel>
+            <IonToggle checked={isDark} onIonChange={toggleTheme} slot="end" />
           </IonItem>
         </IonList>
 

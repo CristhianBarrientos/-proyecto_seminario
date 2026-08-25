@@ -4,6 +4,7 @@ import { IonReactRouter } from '@ionic/react-router';
 import Login from './pages/Login';
 import Tabs from './Tabs';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { ThemeProvider } from './contexts/ThemeContext';
 
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
@@ -16,6 +17,9 @@ import '@ionic/react/css/text-alignment.css';
 import '@ionic/react/css/text-transformation.css';
 import '@ionic/react/css/flex-utils.css';
 import '@ionic/react/css/display.css';
+
+/* Habilita el modo noche activable por clase (.ion-palette-dark) */
+import '@ionic/react/css/palettes/dark.class.css';
 
 import './theme/variables.css';
 
@@ -48,9 +52,11 @@ const AppRoutes: React.FC = () => {
 
 const App: React.FC = () => (
   <IonApp>
-    <AuthProvider>
-      <AppRoutes />
-    </AuthProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <AppRoutes />
+      </AuthProvider>
+    </ThemeProvider>
   </IonApp>
 );
 
