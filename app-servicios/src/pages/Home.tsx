@@ -8,6 +8,8 @@ import { checkmarkCircleOutline } from 'ionicons/icons';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabaseClient';
 import { getFriendlyErrorMessage } from '../lib/errorMessages';
+import { useAuth } from '../contexts/AuthContext';
+import ProfessionalDashboard from '../components/ProfessionalDashboard';
 import './Home.css';
 
 interface ServiceFeedItem {
@@ -32,12 +34,25 @@ interface Category {
 
 const Home: React.FC = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [services, setServices] = useState<ServiceFeedItem[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [searchText, setSearchText] = useState('');
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [role, setRole] = useState<'cliente' | 'profesional' | null>(null);
+
+  useEffect(() => {
+    if (!user) return;
+
+    supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', user.id)
+      .single()
+      .then(({ data }) => setRole(data?.role ?? null));
+  }, [user]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -138,6 +153,15 @@ const Home: React.FC = () => {
         </IonToolbar>
       </IonHeader>
       <IonContent fullscreen>
+        {role === 'profesional' && user && (
+          <>
+            <ProfessionalDashboard userId={user.id} />
+            <IonText color="medium">
+              <p className="ion-padding-horizontal" style={{ marginTop: 0 }}>Explorar el mercado</p>
+            </IonText>
+          </>
+        )}
+
         {loading && (
           <div className="ion-text-center ion-padding">
             <IonSpinner />

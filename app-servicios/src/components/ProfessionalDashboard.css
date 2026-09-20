@@ -1,0 +1,112 @@
+.pro-dashboard {
+  padding: 12px 16px 4px;
+}
+
+.pro-dashboard__title {
+  margin: 0 0 10px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--ion-color-medium);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.pro-dashboard__hero {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  border-radius: 14px;
+  padding: 16px;
+  background: var(--ion-color-primary);
+  color: var(--ion-color-primary-contrast);
+  margin-bottom: 12px;
+}
+
+.pro-dashboard__hero-value {
+  font-size: 1.9rem;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.pro-dashboard__hero-label {
+  font-size: 0.8rem;
+  opacity: 0.85;
+  margin-top: 2px;
+}
+
+.pro-dashboard__stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.pro-dashboard__stat {
+  border-radius: 12px;
+  padding: 10px 8px;
+  text-align: center;
+  background: var(--ion-item-background, var(--ion-background-color));
+  border: 1px solid var(--ion-color-light-shade, rgba(0, 0, 0, 0.08));
+}
+
+.pro-dashboard__stat-value {
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+.pro-dashboard__stat-label {
+  font-size: 0.68rem;
+  color: var(--ion-color-medium);
+  margin-top: 2px;
+}
+
+.pro-dashboard__chart {
+  margin-bottom: 8px;
+}
+
+.pro-dashboard__chart-title {
+  font-size: 0.85rem;
+  color: var(--ion-color-medium);
+  margin: 0 0 8px;
+}
+
+.pro-dashboard__bar-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.pro-dashboard__bar-label {
+  flex: 0 0 78px;
+  font-size: 0.72rem;
+  color: var(--ion-color-medium);
+}
+
+.pro-dashboard__bar-track {
+  flex: 1;
+  height: 10px;
+  border-radius: 5px;
+  background: var(--ion-color-light-shade, rgba(0, 0, 0, 0.06));
+  overflow: hidden;
+}
+
+.pro-dashboard__bar-fill {
+  height: 100%;
+  border-radius: 5px;
+  min-width: 4px;
+  transition: width 0.3s ease;
+}
+
+.pro-dashboard__bar-count {
+  flex: 0 0 20px;
+  text-align: right;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.pro-dashboard__empty {
+  font-size: 0.85rem;
+  color: var(--ion-color-medium);
+  padding: 4px 0 12px;
+}
