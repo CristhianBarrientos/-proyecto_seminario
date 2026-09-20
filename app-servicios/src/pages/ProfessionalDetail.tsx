@@ -40,12 +40,19 @@ const ProfessionalDetail: React.FC = () => {
     if (!id) return;
 
     const load = async () => {
-      const [profResult, servicesResult, ratingResult] = await Promise.all([
+      // professional_profiles/profiles ya no son legibles para terceros (RLS: solo el
+      // dueño ve su propia fila) - el perfil público se arma desde las vistas *_public.
+      const [profProfileResult, profileResult, servicesResult, ratingResult] = await Promise.all([
         supabase
-          .from('professional_profiles')
-          .select('profile_id, bio, is_verified, profiles ( full_name )')
+          .from('professional_profiles_public')
+          .select('profile_id, bio, is_verified')
           .eq('profile_id', id)
-          .single(),
+          .maybeSingle(),
+        supabase
+          .from('profiles_public')
+          .select('full_name')
+          .eq('id', id)
+          .maybeSingle(),
         supabase
           .from('services')
           .select('id, title, price, price_unit, categories ( name )')
@@ -58,13 +65,20 @@ const ProfessionalDetail: React.FC = () => {
           .maybeSingle(),
       ]);
 
-      if (profResult.error) {
-        setError(getFriendlyErrorMessage(profResult.error));
+      if (profProfileResult.error) {
+        setError(getFriendlyErrorMessage(profProfileResult.error));
         setLoading(false);
         return;
       }
 
-      setProfessional(profResult.data as unknown as ProfessionalData);
+      setProfessional(
+        profProfileResult.data
+          ? {
+              ...profProfileResult.data,
+              profiles: profileResult.data ? { full_name: profileResult.data.full_name } : null,
+            }
+          : null,
+      );
       setServices((servicesResult.data as unknown as ServiceItem[]) ?? []);
       setRating(ratingResult.data as RatingData | null);
       setLoading(false);

@@ -10,6 +10,11 @@ export default defineConfig({
     react(),
     legacy()
   ],
+  server: {
+    // permite acceder al dev server vía túneles temporales (Cloudflare Tunnel)
+    // para compartirlo con el equipo - no afecta al backend, que sigue siendo OCI
+    allowedHosts: ['.trycloudflare.com'],
+  },
   test: {
     globals: true,
     environment: 'jsdom',

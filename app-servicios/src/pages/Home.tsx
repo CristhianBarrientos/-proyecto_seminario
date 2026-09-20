@@ -16,6 +16,7 @@ interface ServiceFeedItem {
   price: number;
   price_unit: string;
   category_id: number;
+  professional_id: string;
   professional_profiles: {
     profile_id: string;
     is_verified: boolean;
@@ -40,28 +41,54 @@ const Home: React.FC = () => {
 
   useEffect(() => {
     const fetchData = async () => {
+      // professional_profiles/profiles ya no son legibles para terceros (RLS: solo el
+      // dueño ve su propia fila) - el feed público lee de las vistas *_public en vez de
+      // depender del embed anidado de PostgREST, que no atraviesa esa restricción.
       const [servicesResult, categoriesResult] = await Promise.all([
         supabase
           .from('services')
-          .select(`
-            id,
-            title,
-            price,
-            price_unit,
-            category_id,
-            professional_profiles ( profile_id, is_verified, profiles ( full_name ) ),
-            categories ( name )
-          `)
+          .select('id, title, price, price_unit, category_id, professional_id, categories ( name )')
           .eq('is_active', true),
         supabase.from('categories').select('id, name'),
       ]);
 
       if (servicesResult.error) {
         setError(getFriendlyErrorMessage(servicesResult.error));
-      } else {
-        setServices((servicesResult.data as unknown as ServiceFeedItem[]) ?? []);
+        setLoading(false);
+        return;
       }
 
+      const rawServices = servicesResult.data ?? [];
+      const professionalIds = [...new Set(rawServices.map((s) => s.professional_id))];
+
+      const [profProfilesResult, profilesResult] = professionalIds.length
+        ? await Promise.all([
+            supabase
+              .from('professional_profiles_public')
+              .select('profile_id, is_verified')
+              .in('profile_id', professionalIds),
+            supabase
+              .from('profiles_public')
+              .select('id, full_name')
+              .in('id', professionalIds),
+          ])
+        : [{ data: [] }, { data: [] }];
+
+      const isVerifiedById = new Map((profProfilesResult.data ?? []).map((p) => [p.profile_id, p.is_verified]));
+      const nameById = new Map((profilesResult.data ?? []).map((p) => [p.id, p.full_name]));
+
+      const merged: ServiceFeedItem[] = rawServices.map((s) => ({
+        ...s,
+        professional_profiles: {
+          profile_id: s.professional_id,
+          is_verified: isVerifiedById.get(s.professional_id) ?? false,
+          profiles: nameById.has(s.professional_id)
+            ? { full_name: nameById.get(s.professional_id)! }
+            : null,
+        },
+      }));
+
+      setServices(merged);
       setCategories(categoriesResult.data ?? []);
       setLoading(false);
     };

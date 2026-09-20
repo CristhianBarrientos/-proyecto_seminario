@@ -1,0 +1,194 @@
+{
+  "info": {
+    "name": "SEMINARIO - OCI Supabase",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://129.213.37.131:8000" },
+    { "key": "anon_key", "value": "PEGAR_ANON_KEY_AQUI" },
+    { "key": "access_token", "value": "" },
+    { "key": "user_id", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "1. Lectura publica - categories",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "apikey", "value": "{{anon_key}}" },
+          { "key": "Authorization", "value": "Bearer {{anon_key}}" }
+        ],
+        "url": {
+          "raw": "{{base_url}}/rest/v1/categories?select=*",
+          "host": ["{{base_url}}"],
+          "path": ["rest", "v1", "categories"],
+          "query": [{ "key": "select", "value": "*" }]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('200 OK', () => pm.response.to.have.status(200));",
+              "pm.test('devuelve 5 categorias', () => pm.expect(pm.response.json().length).to.eql(5));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Feed publico - professional_profiles",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "apikey", "value": "{{anon_key}}" },
+          { "key": "Authorization", "value": "Bearer {{anon_key}}" }
+        ],
+        "url": {
+          "raw": "{{base_url}}/rest/v1/professional_profiles?select=profile_id,bio,is_verified",
+          "host": ["{{base_url}}"],
+          "path": ["rest", "v1", "professional_profiles"],
+          "query": [{ "key": "select", "value": "profile_id,bio,is_verified" }]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('200 OK', () => pm.response.to.have.status(200));",
+              "pm.test('devuelve 11 profesionales', () => pm.expect(pm.response.json().length).to.eql(11));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. RLS - insert bookings SIN sesion (debe fallar)",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "apikey", "value": "{{anon_key}}" },
+          { "key": "Authorization", "value": "Bearer {{anon_key}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"client_id\": \"bbbbbbbb-0000-4000-8000-000000000001\",\n  \"professional_id\": \"aaaaaaaa-0000-4000-8000-000000000001\",\n  \"service_id\": \"b2ceaa23-495b-4d15-aa6e-0e0ba2666311\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/rest/v1/bookings",
+          "host": ["{{base_url}}"],
+          "path": ["rest", "v1", "bookings"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('RLS bloquea insert sin sesion (401 o 403)', () => pm.expect([401,403]).to.include(pm.response.code));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Login usuario demo (password grant)",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "apikey", "value": "{{anon_key}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"maria.cliente@demo.com\",\n  \"password\": \"PEGAR_PASSWORD_DEL_SEED\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/auth/v1/token?grant_type=password",
+          "host": ["{{base_url}}"],
+          "path": ["auth", "v1", "token"],
+          "query": [{ "key": "grant_type", "value": "password" }]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('login 200 OK', () => pm.response.to.have.status(200));",
+              "const json = pm.response.json();",
+              "if (json.access_token) {",
+              "  pm.collectionVariables.set('access_token', json.access_token);",
+              "  pm.collectionVariables.set('user_id', json.user.id);",
+              "}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Con sesion - leer mi propio profile",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "apikey", "value": "{{anon_key}}" },
+          { "key": "Authorization", "value": "Bearer {{access_token}}" }
+        ],
+        "url": {
+          "raw": "{{base_url}}/rest/v1/profiles?id=eq.{{user_id}}&select=*",
+          "host": ["{{base_url}}"],
+          "path": ["rest", "v1", "profiles"],
+          "query": [
+            { "key": "id", "value": "eq.{{user_id}}" },
+            { "key": "select", "value": "*" }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('200 OK', () => pm.response.to.have.status(200));",
+              "pm.test('devuelve 1 fila propia', () => pm.expect(pm.response.json().length).to.eql(1));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "6. Con sesion - insert booking propio (debe pasar)",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "apikey", "value": "{{anon_key}}" },
+          { "key": "Authorization", "value": "Bearer {{access_token}}" },
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Prefer", "value": "return=representation" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"client_id\": \"{{user_id}}\",\n  \"professional_id\": \"aaaaaaaa-0000-4000-8000-000000000001\",\n  \"service_id\": \"b2ceaa23-495b-4d15-aa6e-0e0ba2666311\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/rest/v1/bookings",
+          "host": ["{{base_url}}"],
+          "path": ["rest", "v1", "bookings"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('insert propio permitido (201)', () => pm.response.to.have.status(201));"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -27,35 +27,31 @@ const Login: React.FC = () => {
       setError(getFriendlyErrorMessage(error));
       return;
     }
-    navigate('/home');
+    navigate('/tabs/home');
   };
 
   const handleSignup = async () => {
     setLoading(true);
     setError('');
 
-    const { data, error: signUpError } = await supabase.auth.signUp({ email, password });
-    if (signUpError || !data.user) {
-      setLoading(false);
-      setError(getFriendlyErrorMessage(signUpError ?? new Error('No se pudo crear la cuenta')));
-      return;
-    }
-
-    // Creamos la fila en "profiles" que extiende auth.users con nuestros datos propios
-    const { error: profileError } = await supabase.from('profiles').insert({
-      id: data.user.id,
-      role,
-      full_name: fullName,
+    // La fila en "profiles" la crea un trigger en la misma transacción
+    // del signup (ver sql_docker/fix-signup-orfano.sql) - full_name/role
+    // van como metadata, no como insert separado, para que no pueda
+    // quedar un usuario en auth.users sin su fila en profiles.
+    const { data, error: signUpError } = await supabase.auth.signUp({
+      email,
+      password,
+      options: { data: { full_name: fullName, role } },
     });
 
     setLoading(false);
 
-    if (profileError) {
-      setError(getFriendlyErrorMessage(profileError));
+    if (signUpError || !data.user) {
+      setError(getFriendlyErrorMessage(signUpError ?? new Error('No se pudo crear la cuenta')));
       return;
     }
 
-    navigate('/home');
+    navigate('/tabs/home');
   };
 
   return (
