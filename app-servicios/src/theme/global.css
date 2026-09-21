@@ -167,6 +167,17 @@ ion-item.app-field.item-has-focus {
   --border-color: var(--ion-color-secondary);
 }
 
+/* Campo requerido/ inválido tras un intento de envío - ver lib/validation.ts */
+ion-item.app-field--invalid {
+  --border-color: var(--ion-color-danger);
+  --border-width: 1.5px;
+}
+
+.field-error {
+  margin: -8px 0 10px 2px;
+  font-size: 0.76rem;
+}
+
 ion-item.app-field ion-icon[slot='start'] {
   margin-top: 2px;
   margin-inline-end: 12px;

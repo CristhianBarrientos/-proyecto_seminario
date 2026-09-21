@@ -11,6 +11,7 @@ import {
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabaseClient';
 import { getFriendlyErrorMessage } from '../lib/errorMessages';
+import { isPositiveNumber } from '../lib/validation';
 import './MyServices.css';
 
 interface Category {
@@ -37,6 +38,12 @@ const MyServices: React.FC = () => {
   const [categoryId, setCategoryId] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [touched, setTouched] = useState(false);
+
+  const titleInvalid = touched && title.trim().length === 0;
+  const categoryInvalid = touched && !categoryId;
+  const priceInvalid = touched && !isPositiveNumber(price);
+  const fieldClass = (invalid: boolean) => `app-field${invalid ? ' app-field--invalid' : ''}`;
 
   const loadServices = async () => {
     if (!user) return;
@@ -65,17 +72,29 @@ const MyServices: React.FC = () => {
   }, [user]);
 
   const handleAdd = async () => {
-    if (!user || !categoryId || !title || !price) {
-      setError('Completa título, categoría y precio antes de guardar.');
+    setTouched(true);
+
+    if (!user) return;
+    if (title.trim().length === 0) {
+      setError('Ingresá el título del servicio.');
       return;
     }
+    if (!categoryId) {
+      setError('Elegí una categoría.');
+      return;
+    }
+    if (!isPositiveNumber(price)) {
+      setError('Ingresá un precio mayor a cero.');
+      return;
+    }
+
     setLoading(true);
     setError('');
 
     const { error } = await supabase.from('services').insert({
       professional_id: user.id,
       category_id: categoryId,
-      title,
+      title: title.trim(),
       price: Number(price),
       price_unit: priceUnit,
     });
@@ -89,6 +108,7 @@ const MyServices: React.FC = () => {
 
     setTitle('');
     setPrice('');
+    setTouched(false);
     loadServices();
   };
 
@@ -127,28 +147,28 @@ const MyServices: React.FC = () => {
         </p>
 
         <div className="app-card myservices-form">
-          <IonItem className="app-field" lines="none">
+          <IonItem className={fieldClass(titleInvalid)} lines="none">
             <IonIcon icon={hammerOutline} slot="start" color="medium" />
-            <IonLabel position="stacked">Título del servicio</IonLabel>
+            <IonLabel position="stacked">Título del servicio *</IonLabel>
             <IonInput
               value={title}
               onIonInput={(e) => setTitle(e.detail.value!)}
               placeholder="Ej. Instalación eléctrica residencial"
             />
           </IonItem>
-          <IonItem className="app-field" lines="none">
+          <IonItem className={fieldClass(categoryInvalid)} lines="none">
             <IonIcon icon={constructOutline} slot="start" color="medium" />
-            <IonLabel position="stacked">Categoría</IonLabel>
+            <IonLabel position="stacked">Categoría *</IonLabel>
             <IonSelect value={categoryId} onIonChange={(e) => setCategoryId(e.detail.value)}>
               {categories.map((c) => (
                 <IonSelectOption key={c.id} value={c.id}>{c.name}</IonSelectOption>
               ))}
             </IonSelect>
           </IonItem>
-          <IonItem className="app-field" lines="none">
+          <IonItem className={fieldClass(priceInvalid)} lines="none">
             <IonIcon icon={cashOutline} slot="start" color="medium" />
-            <IonLabel position="stacked">Precio (Q)</IonLabel>
-            <IonInput type="number" value={price} onIonInput={(e) => setPrice(e.detail.value!)} />
+            <IonLabel position="stacked">Precio (Q) *</IonLabel>
+            <IonInput type="number" min="0.01" step="0.01" value={price} onIonInput={(e) => setPrice(e.detail.value!)} />
           </IonItem>
           <IonItem className="app-field" lines="none">
             <IonIcon icon={pricetagOutline} slot="start" color="medium" />

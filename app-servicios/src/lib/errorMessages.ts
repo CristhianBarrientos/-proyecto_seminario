@@ -5,36 +5,52 @@
  * El error TÉCNICO completo siempre se imprime en la consola del navegador
  * (F12 → Console) para que tú, como developer, puedas ver exactamente qué
  * pasó (status, code, detalles, hint) — el usuario nunca ve eso, solo el
- * mensaje traducido.
+ * mensaje traducido. El mensaje visible NUNCA debe incluir el texto crudo
+ * del backend, códigos internos, ni pedirle al usuario que revise la consola.
  */
 export function getFriendlyErrorMessage(error: unknown): string {
   // Log completo para debugging - esto es lo que TÚ revisas en consola
   console.error('[Error real]', error);
 
   const err = error as { message?: string; code?: string; status?: number };
-  const rawMessage = err?.message ?? '';
+  const rawMessage = (err?.message ?? '').toLowerCase();
   const code = err?.code ?? err?.status;
 
   // --- Errores de autenticación (Supabase Auth) ---
-  if (rawMessage.includes('sending confirmation email')) {
-    return 'No se pudo completar el registro por un problema de configuración del servidor. Avisa al equipo técnico (código: EMAIL_CONFIG).';
+  if (rawMessage.includes('sending confirmation email') || rawMessage.includes('email_config')) {
+    return 'No pudimos completar el registro en este momento. Probá de nuevo en unos minutos.';
   }
-  if (rawMessage.includes('Invalid login credentials')) {
+  if (rawMessage.includes('invalid login credentials')) {
     return 'El correo o la contraseña no son correctos.';
   }
-  if (rawMessage.toLowerCase().includes('already registered')) {
-    return 'Ya existe una cuenta con ese correo. Intenta iniciar sesión.';
+  if (rawMessage.includes('already registered') || rawMessage.includes('already exists') || rawMessage.includes('user already registered')) {
+    return 'Ya existe una cuenta con ese correo. Probá iniciar sesión.';
   }
-  if (rawMessage.includes('Email not confirmed')) {
-    return 'Tu correo todavía no ha sido confirmado.';
+  if (rawMessage.includes('email not confirmed')) {
+    return 'Tu correo todavía no ha sido confirmado. Revisá tu bandeja de entrada.';
   }
-  if (rawMessage.toLowerCase().includes('password') && rawMessage.includes('6')) {
+  if (rawMessage.includes('password') && (rawMessage.includes('6') || rawMessage.includes('short') || rawMessage.includes('weak'))) {
     return 'La contraseña debe tener al menos 6 caracteres.';
+  }
+  if (rawMessage.includes('invalid') && rawMessage.includes('email')) {
+    return 'El correo ingresado no es válido.';
+  }
+  if (rawMessage.includes('anonymous') && rawMessage.includes('disabled')) {
+    return 'Completá el correo y la contraseña antes de continuar.';
+  }
+  if (rawMessage.includes('rate limit') || rawMessage.includes('too many requests') || rawMessage.includes('after ')) {
+    return 'Hiciste demasiados intentos seguidos. Esperá un momento antes de volver a intentar.';
+  }
+  if (rawMessage.includes('signups not allowed') || rawMessage.includes('signup is disabled')) {
+    return 'En este momento no se pueden crear cuentas nuevas. Intentá más tarde.';
+  }
+  if (rawMessage.includes('jwt') || rawMessage.includes('session') || code === 401) {
+    return 'Tu sesión expiró. Iniciá sesión de nuevo.';
   }
 
   // --- Errores de la base de datos (códigos estándar de Postgres/PostgREST) ---
-  if (code === '42501') {
-    return 'No tienes permiso para realizar esta acción.';
+  if (code === '42501' || code === 403) {
+    return 'No tenés permiso para realizar esta acción.';
   }
   if (code === '23505') {
     return 'Ya existe un registro con esos datos.';
@@ -42,12 +58,16 @@ export function getFriendlyErrorMessage(error: unknown): string {
   if (code === '23503') {
     return 'Falta información relacionada necesaria para completar la acción.';
   }
+  if (code === '23514' || code === '22P02') {
+    return 'Alguno de los datos ingresados no es válido.';
+  }
 
   // --- Error de red (servidor apagado, sin conexión, etc.) ---
-  if (error instanceof TypeError && rawMessage.toLowerCase().includes('fetch')) {
-    return 'No se pudo conectar con el servidor. Verifica tu conexión o que el servidor esté encendido.';
+  if (error instanceof TypeError && rawMessage.includes('fetch')) {
+    return 'No se pudo conectar con el servidor. Verificá tu conexión e intentá de nuevo.';
   }
 
   // --- Cualquier otro caso no mapeado todavía ---
-  return `Ocurrió un error inesperado${code ? ` (código ${code})` : ''}. Revisa la consola para más detalles.`;
+  // Nunca mostramos el código ni el texto crudo acá: ya quedó en la consola arriba.
+  return 'Ocurrió un problema al procesar tu solicitud. Intentá de nuevo en unos minutos.';
 }

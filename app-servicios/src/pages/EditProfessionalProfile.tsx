@@ -11,12 +11,16 @@ import {
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabaseClient';
 import { getFriendlyErrorMessage } from '../lib/errorMessages';
+import { isPositiveNumber } from '../lib/validation';
 import './EditProfessionalProfile.css';
 
 interface VerificationDoc {
   path: string;
   name: string;
 }
+
+const MAX_DOC_SIZE_MB = 10;
+const ALLOWED_DOC_TYPES = ['application/pdf', 'image/png', 'image/jpeg', 'image/webp'];
 
 const EditProfessionalProfile: React.FC = () => {
   const { user } = useAuth();
@@ -30,6 +34,13 @@ const EditProfessionalProfile: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
+  const [touched, setTouched] = useState(false);
+
+  const radiusInvalid = touched && !isPositiveNumber(radius);
+  const coordsMismatch = touched && (lat.trim() === '') !== (lng.trim() === '');
+  const latOutOfRange = touched && lat.trim() !== '' && (Number(lat) < -90 || Number(lat) > 90);
+  const lngOutOfRange = touched && lng.trim() !== '' && (Number(lng) < -180 || Number(lng) > 180);
+  const fieldClass = (invalid: boolean) => `app-field${invalid ? ' app-field--invalid' : ''}`;
 
   const loadProfile = async () => {
     if (!user) return;
@@ -55,14 +66,33 @@ const EditProfessionalProfile: React.FC = () => {
   }, [user]);
 
   const handleSave = async () => {
+    setTouched(true);
     if (!user) return;
+
+    if (!isPositiveNumber(radius)) {
+      setError('El radio de servicio debe ser un número mayor a cero.');
+      return;
+    }
+    if ((lat.trim() === '') !== (lng.trim() === '')) {
+      setError('Completá tanto latitud como longitud, o dejá ambas vacías.');
+      return;
+    }
+    if (lat.trim() !== '' && (Number(lat) < -90 || Number(lat) > 90)) {
+      setError('La latitud debe estar entre -90 y 90.');
+      return;
+    }
+    if (lng.trim() !== '' && (Number(lng) < -180 || Number(lng) > 180)) {
+      setError('La longitud debe estar entre -180 y 180.');
+      return;
+    }
+
     setLoading(true);
     setError('');
     setSuccess(false);
 
     const payload: Record<string, unknown> = {
       profile_id: user.id,
-      bio,
+      bio: bio.trim(),
       service_radius_km: Number(radius),
     };
 
@@ -87,6 +117,16 @@ const EditProfessionalProfile: React.FC = () => {
 
   const handleFileUpload = async (file: File) => {
     if (!user) return;
+
+    if (!ALLOWED_DOC_TYPES.includes(file.type)) {
+      setError('Formato no permitido. Subí un PDF, PNG, JPG o WEBP.');
+      return;
+    }
+    if (file.size > MAX_DOC_SIZE_MB * 1024 * 1024) {
+      setError(`El archivo pesa demasiado. El máximo permitido es ${MAX_DOC_SIZE_MB}MB.`);
+      return;
+    }
+
     setUploading(true);
     setError('');
 
@@ -159,12 +199,12 @@ const EditProfessionalProfile: React.FC = () => {
 
         <p className="app-section-label">Ubicación y cobertura</p>
         <div className="app-card edit-pro-block">
-          <IonItem className="app-field" lines="none">
+          <IonItem className={fieldClass(coordsMismatch || latOutOfRange)} lines="none">
             <IonIcon icon={locationOutline} slot="start" color="medium" />
             <IonLabel position="stacked">Latitud</IonLabel>
             <IonInput type="number" value={lat} onIonInput={(e) => setLat(e.detail.value!)} placeholder="ej. 14.6349" />
           </IonItem>
-          <IonItem className="app-field" lines="none">
+          <IonItem className={fieldClass(coordsMismatch || lngOutOfRange)} lines="none">
             <IonIcon icon={locationOutline} slot="start" color="medium" />
             <IonLabel position="stacked">Longitud</IonLabel>
             <IonInput type="number" value={lng} onIonInput={(e) => setLng(e.detail.value!)} placeholder="ej. -90.5231" />
@@ -173,10 +213,10 @@ const EditProfessionalProfile: React.FC = () => {
             Tip: en Google Maps, clic derecho sobre tu ubicación → copia las coordenadas.
           </IonNote>
 
-          <IonItem className="app-field" lines="none">
+          <IonItem className={fieldClass(radiusInvalid)} lines="none">
             <IonIcon icon={navigateCircleOutline} slot="start" color="medium" />
-            <IonLabel position="stacked">Radio de servicio (km)</IonLabel>
-            <IonInput type="number" value={radius} onIonInput={(e) => setRadius(e.detail.value!)} />
+            <IonLabel position="stacked">Radio de servicio (km) *</IonLabel>
+            <IonInput type="number" min="0.1" step="0.1" value={radius} onIonInput={(e) => setRadius(e.detail.value!)} />
           </IonItem>
         </div>
 

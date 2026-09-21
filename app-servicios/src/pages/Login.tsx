@@ -8,6 +8,7 @@ import { hammerOutline, mailOutline, lockClosedOutline, personOutline, briefcase
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabaseClient';
 import { getFriendlyErrorMessage } from '../lib/errorMessages';
+import { isValidEmail, MIN_PASSWORD_LENGTH } from '../lib/validation';
 import './Login.css';
 
 const Login: React.FC = () => {
@@ -19,11 +20,33 @@ const Login: React.FC = () => {
   const [role, setRole] = useState<'cliente' | 'profesional'>('cliente');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [touched, setTouched] = useState(false);
+
+  const emailInvalid = touched && !isValidEmail(email);
+  const passwordInvalid = touched && password.trim().length < MIN_PASSWORD_LENGTH;
+  const fullNameInvalid = touched && mode === 'signup' && fullName.trim().length === 0;
+
+  const fieldClass = (invalid: boolean) => `app-field${invalid ? ' app-field--invalid' : ''}`;
+
+  // Los mensajes puntuales ya se muestran debajo de cada campo (fullNameInvalid,
+  // emailInvalid, passwordInvalid) - acá solo decidimos si hay algo que bloquee el envío.
+  const isValid = (): boolean => {
+    if (mode === 'signup' && fullName.trim().length === 0) return false;
+    if (!isValidEmail(email)) return false;
+    if (password.trim().length < MIN_PASSWORD_LENGTH) return false;
+    return true;
+  };
 
   const handleLogin = async () => {
+    setTouched(true);
+    if (!isValid()) {
+      setError('Revisá los campos marcados antes de continuar.');
+      return;
+    }
+
     setLoading(true);
     setError('');
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
     setLoading(false);
     if (error) {
       setError(getFriendlyErrorMessage(error));
@@ -33,6 +56,12 @@ const Login: React.FC = () => {
   };
 
   const handleSignup = async () => {
+    setTouched(true);
+    if (!isValid()) {
+      setError('Revisá los campos marcados antes de continuar.');
+      return;
+    }
+
     setLoading(true);
     setError('');
 
@@ -41,9 +70,9 @@ const Login: React.FC = () => {
     // van como metadata, no como insert separado, para que no pueda
     // quedar un usuario en auth.users sin su fila en profiles.
     const { data, error: signUpError } = await supabase.auth.signUp({
-      email,
+      email: email.trim(),
       password,
-      options: { data: { full_name: fullName, role } },
+      options: { data: { full_name: fullName.trim(), role } },
     });
 
     setLoading(false);
@@ -70,7 +99,14 @@ const Login: React.FC = () => {
         </div>
 
         <div className="login-form">
-          <IonSegment value={mode} onIonChange={(e) => setMode(e.detail.value as 'login' | 'signup')}>
+          <IonSegment
+            value={mode}
+            onIonChange={(e) => {
+              setMode(e.detail.value as 'login' | 'signup');
+              setError('');
+              setTouched(false);
+            }}
+          >
             <IonSegmentButton value="login">
               <IonLabel>Iniciar sesión</IonLabel>
             </IonSegmentButton>
@@ -81,14 +117,17 @@ const Login: React.FC = () => {
 
           {mode === 'signup' && (
             <>
-              <IonItem className="app-field">
+              <IonItem className={fieldClass(fullNameInvalid)}>
                 <IonIcon icon={personOutline} slot="start" color="medium" />
-                <IonLabel position="stacked">Nombre completo</IonLabel>
+                <IonLabel position="stacked">Nombre completo *</IonLabel>
                 <IonInput value={fullName} onIonInput={(e) => setFullName(e.detail.value!)} />
               </IonItem>
+              {fullNameInvalid && (
+                <IonText color="danger"><p className="field-error">Ingresá tu nombre completo.</p></IonText>
+              )}
               <IonItem className="app-field">
                 <IonIcon icon={briefcaseOutline} slot="start" color="medium" />
-                <IonLabel position="stacked">Tipo de cuenta</IonLabel>
+                <IonLabel position="stacked">Tipo de cuenta *</IonLabel>
                 <IonSelect value={role} onIonChange={(e) => setRole(e.detail.value)}>
                   <IonSelectOption value="cliente">Cliente</IonSelectOption>
                   <IonSelectOption value="profesional">Profesional</IonSelectOption>
@@ -97,16 +136,25 @@ const Login: React.FC = () => {
             </>
           )}
 
-          <IonItem className="app-field">
+          <IonItem className={fieldClass(emailInvalid)}>
             <IonIcon icon={mailOutline} slot="start" color="medium" />
-            <IonLabel position="stacked">Correo</IonLabel>
+            <IonLabel position="stacked">Correo *</IonLabel>
             <IonInput type="email" value={email} onIonInput={(e) => setEmail(e.detail.value!)} />
           </IonItem>
-          <IonItem className="app-field">
+          {emailInvalid && (
+            <IonText color="danger"><p className="field-error">Ingresá un correo válido.</p></IonText>
+          )}
+
+          <IonItem className={fieldClass(passwordInvalid)}>
             <IonIcon icon={lockClosedOutline} slot="start" color="medium" />
-            <IonLabel position="stacked">Contraseña</IonLabel>
+            <IonLabel position="stacked">Contraseña *</IonLabel>
             <IonInput type="password" value={password} onIonInput={(e) => setPassword(e.detail.value!)} />
           </IonItem>
+          {passwordInvalid && (
+            <IonText color="danger">
+              <p className="field-error">La contraseña debe tener al menos {MIN_PASSWORD_LENGTH} caracteres.</p>
+            </IonText>
+          )}
 
           {error && (
             <IonText color="danger">
