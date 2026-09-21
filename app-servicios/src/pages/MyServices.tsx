@@ -40,7 +40,7 @@ const MyServices: React.FC = () => {
   const [error, setError] = useState('');
   const [touched, setTouched] = useState(false);
 
-  const titleInvalid = touched && title.trim().length === 0;
+  const titleInvalid = touched && title.trim().length < 3;
   const categoryInvalid = touched && !categoryId;
   const priceInvalid = touched && !isPositiveNumber(price);
   const fieldClass = (invalid: boolean) => `app-field${invalid ? ' app-field--invalid' : ''}`;
@@ -75,8 +75,8 @@ const MyServices: React.FC = () => {
     setTouched(true);
 
     if (!user) return;
-    if (title.trim().length === 0) {
-      setError('Ingresá el título del servicio.');
+    if (title.trim().length < 3) {
+      setError('El título debe tener al menos 3 caracteres.');
       return;
     }
     if (!categoryId) {

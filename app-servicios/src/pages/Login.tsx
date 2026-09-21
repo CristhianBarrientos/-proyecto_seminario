@@ -8,7 +8,7 @@ import { hammerOutline, mailOutline, lockClosedOutline, personOutline, briefcase
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabaseClient';
 import { getFriendlyErrorMessage } from '../lib/errorMessages';
-import { isValidEmail, MIN_PASSWORD_LENGTH } from '../lib/validation';
+import { isValidEmail, isValidFullName, MIN_PASSWORD_LENGTH } from '../lib/validation';
 import './Login.css';
 
 const Login: React.FC = () => {
@@ -24,14 +24,14 @@ const Login: React.FC = () => {
 
   const emailInvalid = touched && !isValidEmail(email);
   const passwordInvalid = touched && password.trim().length < MIN_PASSWORD_LENGTH;
-  const fullNameInvalid = touched && mode === 'signup' && fullName.trim().length === 0;
+  const fullNameInvalid = touched && mode === 'signup' && !isValidFullName(fullName);
 
   const fieldClass = (invalid: boolean) => `app-field${invalid ? ' app-field--invalid' : ''}`;
 
   // Los mensajes puntuales ya se muestran debajo de cada campo (fullNameInvalid,
   // emailInvalid, passwordInvalid) - acá solo decidimos si hay algo que bloquee el envío.
   const isValid = (): boolean => {
-    if (mode === 'signup' && fullName.trim().length === 0) return false;
+    if (mode === 'signup' && !isValidFullName(fullName)) return false;
     if (!isValidEmail(email)) return false;
     if (password.trim().length < MIN_PASSWORD_LENGTH) return false;
     return true;
@@ -120,10 +120,12 @@ const Login: React.FC = () => {
               <IonItem className={fieldClass(fullNameInvalid)}>
                 <IonIcon icon={personOutline} slot="start" color="medium" />
                 <IonLabel position="stacked">Nombre completo *</IonLabel>
-                <IonInput value={fullName} onIonInput={(e) => setFullName(e.detail.value!)} />
+                <IonInput value={fullName} placeholder="Ej. María López" onIonInput={(e) => setFullName(e.detail.value!)} />
               </IonItem>
               {fullNameInvalid && (
-                <IonText color="danger"><p className="field-error">Ingresá tu nombre completo.</p></IonText>
+                <IonText color="danger">
+                  <p className="field-error">Ingresá tu nombre y apellido (solo letras, sin números).</p>
+                </IonText>
               )}
               <IonItem className="app-field">
                 <IonIcon icon={briefcaseOutline} slot="start" color="medium" />
