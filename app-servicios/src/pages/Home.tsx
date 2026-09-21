@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
 import {
   IonContent, IonHeader, IonPage, IonTitle, IonToolbar,
-  IonList, IonItem, IonAvatar, IonLabel, IonBadge, IonIcon,
+  IonAvatar, IonIcon,
   IonSearchbar, IonSpinner, IonText, IonSelect, IonSelectOption,
 } from '@ionic/react';
-import { checkmarkCircleOutline } from 'ionicons/icons';
+import { shieldCheckmarkOutline, hammerOutline, funnelOutline, cashOutline, searchOutline } from 'ionicons/icons';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabaseClient';
 import { getFriendlyErrorMessage } from '../lib/errorMessages';
@@ -125,11 +125,30 @@ const Home: React.FC = () => {
     });
   }, [services, searchText, categoryFilter]);
 
+  if (role === 'profesional' && user) {
+    return (
+      <IonPage>
+        <IonHeader>
+          <IonToolbar>
+            <IonTitle className="app-title">
+              Así va tu <span className="app-title--accent">negocio</span>
+            </IonTitle>
+          </IonToolbar>
+        </IonHeader>
+        <IonContent fullscreen>
+          <ProfessionalDashboard userId={user.id} />
+        </IonContent>
+      </IonPage>
+    );
+  }
+
   return (
     <IonPage>
       <IonHeader>
-        <IonToolbar color="primary">
-          <IonTitle>Servicios cerca de ti</IonTitle>
+        <IonToolbar>
+          <IonTitle className="app-title">
+            Servicios <span className="app-title--accent">cerca de ti</span>
+          </IonTitle>
         </IonToolbar>
         <IonToolbar>
           <IonSearchbar
@@ -138,12 +157,12 @@ const Home: React.FC = () => {
             onIonInput={(e) => setSearchText(e.detail.value ?? '')}
           />
         </IonToolbar>
-        <IonToolbar>
+        <IonToolbar className="home-filter-bar">
+          <IonIcon icon={funnelOutline} slot="start" color="medium" className="home-filter-bar__icon" />
           <IonSelect
             interface="popover"
             value={categoryFilter}
             onIonChange={(e) => setCategoryFilter(e.detail.value)}
-            className="ion-padding-start"
           >
             <IonSelectOption value="all">Todas las categorías</IonSelectOption>
             {categories.map((c) => (
@@ -153,15 +172,6 @@ const Home: React.FC = () => {
         </IonToolbar>
       </IonHeader>
       <IonContent fullscreen>
-        {role === 'profesional' && user && (
-          <>
-            <ProfessionalDashboard userId={user.id} />
-            <IonText color="medium">
-              <p className="ion-padding-horizontal" style={{ marginTop: 0 }}>Explorar el mercado</p>
-            </IonText>
-          </>
-        )}
-
         {loading && (
           <div className="ion-text-center ion-padding">
             <IonSpinner />
@@ -175,45 +185,56 @@ const Home: React.FC = () => {
         )}
 
         {!loading && !error && filteredServices.length === 0 && (
-          <IonText color="medium">
-            <p className="ion-padding">No hay servicios que coincidan con tu búsqueda.</p>
-          </IonText>
+          <div className="app-empty">
+            <IonIcon icon={searchOutline} />
+            <h3>No encontramos servicios</h3>
+            <p>Probá con otra búsqueda o cambiá la categoría del filtro.</p>
+          </div>
         )}
 
-        <IonList>
+        <div className="home-feed">
           {filteredServices.map((s) => (
-            <IonItem
+            <button
+              type="button"
               key={s.id}
-              button
-              detail
+              className="service-card app-card"
               onClick={() => {
                 if (s.professional_profiles?.profile_id) {
                   navigate(`/tabs/home/${s.professional_profiles.profile_id}`);
                 }
               }}
             >
-              <IonAvatar slot="start">
+              <IonAvatar className={`app-avatar${s.professional_profiles?.is_verified ? ' app-avatar--verified' : ''}`}>
                 <img
                   src={`https://api.dicebear.com/7.x/initials/svg?seed=${s.professional_profiles?.profiles?.full_name ?? '?'}`}
                   alt={s.professional_profiles?.profiles?.full_name ?? 'Profesional'}
                 />
               </IonAvatar>
-              <IonLabel>
-                <h2>{s.professional_profiles?.profiles?.full_name ?? 'Profesional'}</h2>
-                <p>{s.title}{s.categories?.name ? ` · ${s.categories.name}` : ''}</p>
+
+              <div className="service-card__body">
+                <p className="service-card__name">{s.professional_profiles?.profiles?.full_name ?? 'Profesional'}</p>
+                <p className="service-card__title">
+                  <IonIcon icon={hammerOutline} />
+                  {s.title}{s.categories?.name ? ` · ${s.categories.name}` : ''}
+                </p>
                 {s.professional_profiles?.is_verified && (
-                  <p>
-                    <IonIcon icon={checkmarkCircleOutline} color="tertiary" style={{ verticalAlign: 'middle' }} /> Verificado
-                  </p>
+                  <span className="app-chip app-chip--verified">
+                    <IonIcon icon={shieldCheckmarkOutline} />
+                    Verificado
+                  </span>
                 )}
-              </IonLabel>
-              <div slot="end" style={{ textAlign: 'right' }}>
-                <IonBadge color="secondary">Q{s.price}</IonBadge>
-                <p style={{ fontSize: '0.75rem', color: 'var(--ion-color-medium)' }}>{s.price_unit}</p>
               </div>
-            </IonItem>
+
+              <div className="service-card__price">
+                <span className="app-price">
+                  <IonIcon icon={cashOutline} />
+                  Q{s.price}
+                </span>
+                <span className="service-card__unit">{s.price_unit}</span>
+              </div>
+            </button>
           ))}
-        </IonList>
+        </div>
       </IonContent>
     </IonPage>
   );

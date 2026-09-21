@@ -1,6 +1,6 @@
 import { Navigate, Route } from 'react-router-dom';
 import { IonTabs, IonRouterOutlet, IonTabBar, IonTabButton, IonIcon, IonLabel } from '@ionic/react';
-import { homeOutline, listOutline, personOutline } from 'ionicons/icons';
+import { compassOutline, clipboardOutline, personCircleOutline } from 'ionicons/icons';
 import Home from './pages/Home';
 import Bookings from './pages/Bookings';
 import Profile from './pages/Profile';
@@ -23,15 +23,15 @@ const Tabs: React.FC = () => {
 
       <IonTabBar slot="bottom">
         <IonTabButton tab="home" href="/tabs/home">
-          <IonIcon icon={homeOutline} />
-          <IonLabel>Feed</IonLabel>
+          <IonIcon icon={compassOutline} />
+          <IonLabel>Explorar</IonLabel>
         </IonTabButton>
         <IonTabButton tab="bookings" href="/tabs/bookings">
-          <IonIcon icon={listOutline} />
+          <IonIcon icon={clipboardOutline} />
           <IonLabel>Solicitudes</IonLabel>
         </IonTabButton>
         <IonTabButton tab="profile" href="/tabs/profile">
-          <IonIcon icon={personOutline} />
+          <IonIcon icon={personCircleOutline} />
           <IonLabel>Perfil</IonLabel>
         </IonTabButton>
       </IonTabBar>

@@ -1,0 +1,47 @@
+.myservices-form {
+  margin: 0 16px 8px;
+  padding: 14px 14px 16px;
+}
+
+.myservices-form ion-item.app-field {
+  margin-bottom: 8px;
+}
+
+.myservices-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 0 16px 24px;
+}
+
+.myservices-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 8px 12px 14px;
+}
+
+.myservices-item__body {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  min-width: 0;
+}
+
+.myservices-item__title {
+  margin: 0;
+  font-weight: 700;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.myservices-item__actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}

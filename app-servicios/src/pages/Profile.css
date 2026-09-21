@@ -1,0 +1,64 @@
+.profile-hero {
+  margin: 16px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  border-radius: var(--app-radius-lg);
+}
+
+.profile-hero__avatar {
+  width: 60px;
+  height: 60px;
+}
+
+.profile-hero__name {
+  margin: 0 0 2px;
+  font-size: 1.1rem;
+  font-weight: 800;
+}
+
+.profile-hero__email {
+  margin: 0 0 8px;
+  font-size: 0.8rem;
+  opacity: 0.75;
+}
+
+.profile-hero__role {
+  background: rgba(255, 255, 255, 0.16);
+  color: #fff;
+}
+
+.profile-links {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 0 16px;
+}
+
+.profile-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px;
+  margin: 0 16px 8px;
+}
+
+.profile-links .profile-row {
+  margin: 0;
+}
+
+.profile-row__label {
+  flex: 1;
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-align: left;
+}
+
+.profile-row--link {
+  width: 100%;
+  border: 1px solid var(--ion-border-color);
+  background: var(--app-surface);
+  font-family: inherit;
+  cursor: pointer;
+  color: var(--ion-text-color);
+}

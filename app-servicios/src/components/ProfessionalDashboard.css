@@ -2,51 +2,45 @@
   padding: 12px 16px 4px;
 }
 
-.pro-dashboard__title {
+.pro-dashboard__greeting {
   margin: 0 0 10px;
   font-size: 0.95rem;
-  font-weight: 600;
-  color: var(--ion-color-medium);
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
+  font-weight: 700;
+  color: var(--ion-text-color);
 }
 
 .pro-dashboard__hero {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  border-radius: 14px;
-  padding: 16px;
-  background: var(--ion-color-primary);
-  color: var(--ion-color-primary-contrast);
+  border-radius: var(--app-radius-md);
+  padding: 18px 16px;
   margin-bottom: 12px;
 }
 
 .pro-dashboard__hero-value {
   font-size: 1.9rem;
-  font-weight: 700;
+  font-weight: 800;
   line-height: 1.1;
 }
 
 .pro-dashboard__hero-label {
   font-size: 0.8rem;
   opacity: 0.85;
-  margin-top: 2px;
+  margin-top: 4px;
 }
 
 .pro-dashboard__stats {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 8px;
-  margin-bottom: 14px;
+  margin-bottom: 12px;
 }
 
 .pro-dashboard__stat {
-  border-radius: 12px;
+  border-radius: var(--app-radius-sm);
   padding: 10px 8px;
   text-align: center;
-  background: var(--ion-item-background, var(--ion-background-color));
-  border: 1px solid var(--ion-color-light-shade, rgba(0, 0, 0, 0.08));
+  background: var(--app-surface);
+  border: 1px solid var(--ion-border-color);
+  box-shadow: var(--app-shadow-sm);
 }
 
 .pro-dashboard__stat-value {
@@ -60,53 +54,427 @@
   margin-top: 2px;
 }
 
-.pro-dashboard__chart {
-  margin-bottom: 8px;
+.pro-chart-card {
+  padding: 14px 14px 16px;
+  margin-bottom: 10px;
 }
 
-.pro-dashboard__chart-title {
-  font-size: 0.85rem;
+.pro-chart-card__title {
+  margin: 0 0 10px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--ion-text-color);
+}
+
+.pro-chart-card__empty {
+  margin: 4px 0 0;
+  font-size: 0.8rem;
   color: var(--ion-color-medium);
-  margin: 0 0 8px;
 }
 
-.pro-dashboard__bar-row {
+/* --- Anillo de estados --- */
+
+.status-ring {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  margin: 4px 0 12px;
+}
+
+.status-ring__svg {
+  width: 150px;
+  height: 150px;
+}
+
+.status-ring__track {
+  stroke: var(--ion-border-color);
+}
+
+.status-ring__seg {
+  transition: stroke-width 0.15s ease, opacity 0.15s ease;
+  outline: none;
+}
+
+.status-ring__seg--solicitado { stroke: var(--chart-status-solicitado); }
+.status-ring__seg--aceptado { stroke: var(--chart-status-aceptado); }
+.status-ring__seg--en_curso { stroke: var(--chart-status-en_curso); }
+.status-ring__seg--completado { stroke: var(--chart-status-completado); }
+.status-ring__seg--cancelado { stroke: var(--chart-status-cancelado); }
+
+.status-ring__center {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.status-ring__center-value {
+  font-size: 1.6rem;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--ion-text-color);
+}
+
+.status-ring__center-label {
+  font-size: 0.68rem;
+  color: var(--ion-color-medium);
+  margin-top: 3px;
+}
+
+.status-ring__legend {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 6px 12px;
+}
+
+.status-ring__legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 4px;
+  border-radius: 8px;
+  outline: none;
+}
+
+.status-ring__legend-item.is-active {
+  background: var(--ion-border-color);
+}
+
+.status-ring__dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.status-ring__dot--solicitado { background: var(--chart-status-solicitado); }
+.status-ring__dot--aceptado { background: var(--chart-status-aceptado); }
+.status-ring__dot--en_curso { background: var(--chart-status-en_curso); }
+.status-ring__dot--completado { background: var(--chart-status-completado); }
+.status-ring__dot--cancelado { background: var(--chart-status-cancelado); }
+
+.status-ring__legend-label {
+  flex: 1;
+  font-size: 0.76rem;
+  color: var(--ion-text-color);
+}
+
+.status-ring__legend-value {
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: var(--ion-text-color);
+}
+
+/* --- Embudo de conversión --- */
+
+.funnel {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.funnel__row {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 8px;
 }
 
-.pro-dashboard__bar-label {
-  flex: 0 0 78px;
-  font-size: 0.72rem;
+.funnel__label {
+  flex: 0 0 72px;
+  font-size: 0.74rem;
   color: var(--ion-color-medium);
 }
 
-.pro-dashboard__bar-track {
+.funnel__track {
   flex: 1;
-  height: 10px;
-  border-radius: 5px;
-  background: var(--ion-color-light-shade, rgba(0, 0, 0, 0.06));
+  height: 20px;
+  border-radius: 6px;
+  background: var(--ion-border-color);
   overflow: hidden;
 }
 
-.pro-dashboard__bar-fill {
+.funnel__fill {
   height: 100%;
-  border-radius: 5px;
-  min-width: 4px;
+  border-radius: 6px;
   transition: width 0.3s ease;
 }
 
-.pro-dashboard__bar-count {
-  flex: 0 0 20px;
+.funnel__fill--solicitado { background: var(--chart-status-solicitado); }
+.funnel__fill--aceptado { background: var(--chart-status-aceptado); }
+.funnel__fill--en_curso { background: var(--chart-status-en_curso); }
+.funnel__fill--completado { background: var(--chart-status-completado); }
+
+.funnel__value {
+  flex: 0 0 68px;
   text-align: right;
-  font-size: 0.78rem;
-  font-weight: 600;
+  font-size: 0.76rem;
+  font-weight: 700;
 }
 
-.pro-dashboard__empty {
-  font-size: 0.85rem;
+.funnel__pct {
+  font-weight: 500;
   color: var(--ion-color-medium);
-  padding: 4px 0 12px;
+}
+
+.pro-chart-card__note {
+  margin: 10px 0 0;
+  font-size: 0.74rem;
+  color: var(--ion-color-medium);
+}
+
+/* --- Tendencia --- */
+
+.trend-chart__svg {
+  width: 100%;
+  height: 96px;
+  overflow: visible;
+}
+
+.trend-chart__baseline {
+  stroke: var(--ion-border-color);
+  stroke-width: 1;
+}
+
+.trend-chart__area {
+  fill: var(--trend-color, var(--ion-color-secondary));
+  opacity: 0.1;
+}
+
+.trend-chart__line {
+  fill: none;
+  stroke: var(--trend-color, var(--ion-color-secondary));
+  stroke-width: 2;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+.trend-chart__dot {
+  fill: var(--trend-color, var(--ion-color-secondary));
+  stroke: var(--app-surface);
+  stroke-width: 2;
+  cursor: pointer;
+  outline: none;
+}
+
+.trend-chart__value-label {
+  font-size: 10px;
+  font-weight: 700;
+  fill: var(--ion-text-color);
+}
+
+.trend-chart__axis {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 4px;
+}
+
+.trend-chart__axis span {
+  font-size: 0.66rem;
+  color: var(--ion-color-medium);
+  text-transform: capitalize;
+}
+
+.trend-chart__axis span.is-active {
+  color: var(--ion-color-secondary-shade);
+  font-weight: 700;
+}
+
+/* --- Tendencia en barras (solicitudes) --- */
+
+.bar-trend {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 6px;
+  height: 110px;
+}
+
+.bar-trend__col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  height: 100%;
+  outline: none;
+  cursor: pointer;
+}
+
+.bar-trend__value {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--ion-text-color);
+  margin-bottom: 2px;
+}
+
+.bar-trend__track {
+  width: 100%;
+  max-width: 26px;
+  height: 76px;
+  display: flex;
+  align-items: flex-end;
+}
+
+.bar-trend__fill {
+  width: 100%;
+  border-radius: 5px 5px 2px 2px;
+  background: var(--chart-status-en_curso);
+  transition: height 0.25s ease, background 0.15s ease;
+}
+
+.bar-trend__fill.is-active {
+  background: var(--chart-status-completado);
+}
+
+.bar-trend__label {
+  margin-top: 6px;
+  font-size: 0.66rem;
+  color: var(--ion-color-medium);
+  text-transform: capitalize;
+}
+
+.bar-trend__label.is-active {
+  color: var(--ion-text-color);
+  font-weight: 700;
+}
+
+/* --- Comparativa de calificación --- */
+
+.rating-compare {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.rating-compare__row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.rating-compare__label {
+  flex: 0 0 56px;
+  font-size: 0.76rem;
+  color: var(--ion-color-medium);
+}
+
+.rating-compare__track {
+  flex: 1;
+  height: 10px;
+  border-radius: 5px;
+  background: var(--ion-border-color);
+  overflow: hidden;
+}
+
+.rating-compare__fill {
+  height: 100%;
+  border-radius: 5px;
+  transition: width 0.3s ease;
+}
+
+.rating-compare__fill--mine {
+  background: var(--ion-color-secondary);
+}
+
+.rating-compare__fill--market {
+  background: var(--ion-color-medium);
+}
+
+.rating-compare__value {
+  flex: 0 0 28px;
+  text-align: right;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+/* --- Dumbbell: precios por categoría --- */
+
+.dumbbell__legend {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+
+.dumbbell__legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.74rem;
+  color: var(--ion-color-medium);
+}
+
+.dumbbell__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.dumbbell__dot--mine { background: var(--ion-color-secondary); }
+.dumbbell__dot--market { background: var(--ion-color-medium); }
+
+.dumbbell {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.dumbbell__row {
+  outline: none;
+  cursor: pointer;
+}
+
+.dumbbell__label {
+  display: block;
+  font-size: 0.76rem;
+  color: var(--ion-text-color);
+  margin-bottom: 6px;
+}
+
+.dumbbell__track {
+  position: relative;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--ion-border-color);
+}
+
+.dumbbell__connector {
+  position: absolute;
+  top: 0;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--ion-color-medium);
+  opacity: 0.4;
+}
+
+.dumbbell__point {
+  position: absolute;
+  top: 50%;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  border: 2px solid var(--app-surface);
+}
+
+.dumbbell__point--mine {
+  background: var(--ion-color-secondary);
+  z-index: 1;
+}
+
+.dumbbell__point--market {
+  background: var(--ion-color-medium);
+}
+
+.dumbbell__value {
+  display: block;
+  margin-top: 6px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--ion-text-color);
 }

@@ -2,11 +2,12 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import {
   IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonBackButton, IonButtons,
-  IonList, IonItem, IonLabel, IonBadge, IonIcon, IonText, IonSpinner, IonAvatar,
+  IonAvatar, IonIcon, IonText, IonSpinner,
 } from '@ionic/react';
-import { checkmarkCircleOutline, starSharp } from 'ionicons/icons';
+import { shieldCheckmarkOutline, star, hammerOutline, constructOutline, informationCircleOutline, timeOutline } from 'ionicons/icons';
 import { supabase } from '../lib/supabaseClient';
 import { getFriendlyErrorMessage } from '../lib/errorMessages';
+import './ProfessionalDetail.css';
 
 interface ServiceItem {
   id: string;
@@ -90,78 +91,90 @@ const ProfessionalDetail: React.FC = () => {
   return (
     <IonPage>
       <IonHeader>
-        <IonToolbar color="primary">
+        <IonToolbar>
           <IonButtons slot="start">
             <IonBackButton defaultHref="/tabs/home" />
           </IonButtons>
           <IonTitle>Perfil del profesional</IonTitle>
         </IonToolbar>
       </IonHeader>
-      <IonContent className="ion-padding">
+      <IonContent>
         {loading && (
           <div className="ion-text-center ion-padding">
             <IonSpinner />
           </div>
         )}
 
-        {error && <IonText color="danger"><p>{error}</p></IonText>}
+        {error && <IonText color="danger"><p className="ion-padding">{error}</p></IonText>}
 
         {!loading && professional && (
           <>
-            <IonItem lines="none">
-              <IonAvatar slot="start">
-                <img
-                  src={`https://api.dicebear.com/7.x/initials/svg?seed=${professional.profiles?.full_name ?? '?'}`}
-                  alt={professional.profiles?.full_name ?? 'Profesional'}
-                />
-              </IonAvatar>
-              <IonLabel>
-                <h1>{professional.profiles?.full_name ?? 'Profesional'}</h1>
-                {professional.is_verified && (
-                  <p>
-                    <IonIcon icon={checkmarkCircleOutline} color="tertiary" style={{ verticalAlign: 'middle' }} /> Verificado
-                  </p>
-                )}
-                {rating && rating.rating_count > 0 && (
-                  <p>
-                    <IonIcon icon={starSharp} color="secondary" style={{ verticalAlign: 'middle' }} /> {rating.rating_avg} ({rating.rating_count} reseñas)
-                  </p>
-                )}
-              </IonLabel>
-            </IonItem>
+            <div className="pro-detail-hero app-hero">
+              <div className="pro-detail-hero__row">
+                <IonAvatar className={`app-avatar pro-detail-hero__avatar${professional.is_verified ? ' app-avatar--verified' : ''}`}>
+                  <img
+                    src={`https://api.dicebear.com/7.x/initials/svg?seed=${professional.profiles?.full_name ?? '?'}`}
+                    alt={professional.profiles?.full_name ?? 'Profesional'}
+                  />
+                </IonAvatar>
+                <div>
+                  <h1 className="pro-detail-hero__name">{professional.profiles?.full_name ?? 'Profesional'}</h1>
+                  <div className="pro-detail-hero__badges">
+                    {professional.is_verified && (
+                      <span className="app-chip app-chip--verified">
+                        <IonIcon icon={shieldCheckmarkOutline} />
+                        Verificado
+                      </span>
+                    )}
+                    {rating && rating.rating_count > 0 && (
+                      <span className="app-chip app-chip--rating">
+                        <IonIcon icon={star} />
+                        {rating.rating_avg} ({rating.rating_count})
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
 
             {professional.bio && (
-              <IonText>
-                <p className="ion-padding-horizontal">{professional.bio}</p>
-              </IonText>
+              <div className="pro-detail-bio">
+                <IonIcon icon={informationCircleOutline} color="medium" />
+                <p>{professional.bio}</p>
+              </div>
             )}
 
-            <IonItem lines="none" className="ion-margin-top">
-              <IonLabel><h2>Servicios</h2></IonLabel>
-            </IonItem>
+            <p className="app-section-label">
+              <IonIcon icon={constructOutline} style={{ verticalAlign: 'middle', marginRight: 4 }} />
+              Servicios
+            </p>
 
-            <IonList>
+            <div className="pro-detail-services">
               {services.map((s) => (
-                <IonItem key={s.id}>
-                  <IonLabel>
-                    <h3>{s.title}</h3>
-                    <p>{s.categories?.name}</p>
-                  </IonLabel>
-                  <IonBadge color="secondary" slot="end">Q{s.price} / {s.price_unit}</IonBadge>
-                </IonItem>
+                <div key={s.id} className="app-card pro-detail-service">
+                  <div className="pro-detail-service__body">
+                    <p className="pro-detail-service__title">
+                      <IonIcon icon={hammerOutline} />
+                      {s.title}
+                    </p>
+                    <p className="pro-detail-service__category">{s.categories?.name}</p>
+                  </div>
+                  <span className="app-price">Q{s.price} / {s.price_unit}</span>
+                </div>
               ))}
               {services.length === 0 && (
-                <IonText color="medium">
-                  <p className="ion-padding">Sin servicios activos por ahora.</p>
-                </IonText>
+                <div className="app-empty">
+                  <IonIcon icon={constructOutline} />
+                  <h3>Sin servicios activos</h3>
+                  <p>Este profesional todavía no publicó servicios.</p>
+                </div>
               )}
-            </IonList>
+            </div>
 
-            <IonText color="medium">
-              <p className="ion-padding-horizontal">
-                El botón "Solicitar servicio" llega en la Fase 5 (bookings).
-              </p>
-            </IonText>
+            <div className="pro-detail-notice">
+              <IonIcon icon={timeOutline} color="medium" />
+              <p>El botón "Solicitar servicio" llega en la Fase 5 (bookings).</p>
+            </div>
           </>
         )}
       </IonContent>

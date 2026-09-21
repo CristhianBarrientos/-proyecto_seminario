@@ -1,46 +1,106 @@
 @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap');
 
 /* ==========================================================
-   PALETA "BLUEPRINT + COPPER"
-   Inspirada en planos técnicos y herramientas de cobre/latón,
-   pensada para una app de servicios de oficios (electricidad,
-   plomería, albañilería, carpintería).
+   PALETA "SAFETY AMBER & SLATE"
+   Slate profundo (confianza, precisión técnica) + ámbar de
+   seguridad (herramientas, señalización de obra) como acento
+   de acción. Pensada para una marketplace de oficios.
    ========================================================== */
 
 :root {
-  /* --- Primario: Blueprint (azul técnico profundo) --- */
-  --ion-color-primary: #1B3358;
-  --ion-color-primary-rgb: 27, 51, 88;
+  /* --- Primario: Slate (marca, headers, texto fuerte) --- */
+  --ion-color-primary: #2B3542;
+  --ion-color-primary-rgb: 43, 53, 66;
   --ion-color-primary-contrast: #ffffff;
   --ion-color-primary-contrast-rgb: 255, 255, 255;
-  --ion-color-primary-shade: #172D4D;
-  --ion-color-primary-tint: #32476A;
+  --ion-color-primary-shade: #262F3A;
+  --ion-color-primary-tint: #404A56;
 
-  /* --- Secundario: Copper (cobre oxidado) - precios, CTAs --- */
-  --ion-color-secondary: #B5622C;
-  --ion-color-secondary-rgb: 181, 98, 44;
-  --ion-color-secondary-contrast: #ffffff;
-  --ion-color-secondary-contrast-rgb: 255, 255, 255;
-  --ion-color-secondary-shade: #9F5627;
-  --ion-color-secondary-tint: #BC7141;
+  /* --- Secundario: Amber de seguridad (CTAs, precios, acentos) --- */
+  --ion-color-secondary: #F2A73B;
+  --ion-color-secondary-rgb: 242, 167, 59;
+  --ion-color-secondary-contrast: #1A1300;
+  --ion-color-secondary-contrast-rgb: 26, 19, 0;
+  --ion-color-secondary-shade: #D69434;
+  --ion-color-secondary-tint: #F4B155;
 
-  /* --- Terciario: Patina (verde cobre envejecido) - verificado --- */
-  --ion-color-tertiary: #4F8B7A;
-  --ion-color-tertiary-rgb: 79, 139, 122;
+  /* --- Terciario: Teal (verificado / confianza) --- */
+  --ion-color-tertiary: #2F7A6B;
+  --ion-color-tertiary-rgb: 47, 122, 107;
   --ion-color-tertiary-contrast: #ffffff;
   --ion-color-tertiary-contrast-rgb: 255, 255, 255;
-  --ion-color-tertiary-shade: #457A6B;
-  --ion-color-tertiary-tint: #619687;
+  --ion-color-tertiary-shade: #296B5E;
+  --ion-color-tertiary-tint: #43897A;
+
+  --ion-color-success: #2F9E5B;
+  --ion-color-success-rgb: 47, 158, 91;
+  --ion-color-success-contrast: #ffffff;
+  --ion-color-success-contrast-rgb: 255, 255, 255;
+  --ion-color-success-shade: #298B50;
+  --ion-color-success-tint: #44A86B;
+
+  --ion-color-warning: #E0912B;
+  --ion-color-warning-rgb: 224, 145, 43;
+  --ion-color-warning-contrast: #1A1300;
+  --ion-color-warning-contrast-rgb: 26, 19, 0;
+  --ion-color-warning-shade: #C57F26;
+  --ion-color-warning-tint: #E39C41;
+
+  --ion-color-danger: #C6473D;
+  --ion-color-danger-rgb: 198, 71, 61;
+  --ion-color-danger-contrast: #ffffff;
+  --ion-color-danger-contrast-rgb: 255, 255, 255;
+  --ion-color-danger-shade: #AE3E36;
+  --ion-color-danger-tint: #CC5951;
+
+  --ion-color-medium: #6B7480;
+  --ion-color-medium-rgb: 107, 116, 128;
+  --ion-color-medium-contrast: #ffffff;
+  --ion-color-medium-contrast-rgb: 255, 255, 255;
+  --ion-color-medium-shade: #5E6671;
+  --ion-color-medium-tint: #7A828D;
+
+  --ion-color-light: #EDEFF2;
+  --ion-color-light-rgb: 237, 239, 242;
+  --ion-color-light-contrast: #171B21;
+  --ion-color-light-contrast-rgb: 23, 27, 33;
+  --ion-color-light-shade: #D1D3D6;
+  --ion-color-light-tint: #EFF1F3;
 
   /* --- Fondo y texto (modo día) --- */
-  --ion-background-color: #F3F6F8;
-  --ion-background-color-rgb: 243, 246, 248;
-  --ion-text-color: #1A2733;
-  --ion-text-color-rgb: 26, 39, 51;
+  --ion-background-color: #F4F5F7;
+  --ion-background-color-rgb: 244, 245, 247;
+  --ion-text-color: #171B21;
+  --ion-text-color-rgb: 23, 27, 33;
 
   --ion-item-background: #ffffff;
-  --ion-border-color: #DCE3E8;
-  --ion-toolbar-background: var(--ion-color-primary);
+  --ion-border-color: #E2E5E9;
+  --ion-toolbar-background: #ffffff;
+  --ion-toolbar-border-color: #E2E5E9;
+  --ion-tab-bar-background: #ffffff;
+  --ion-tab-bar-border-color: #E2E5E9;
+  --ion-card-background: #ffffff;
+
+  /* --- Tokens propios de la app (no son de Ionic) --- */
+  --app-surface: #ffffff;
+  --app-surface-raised: #ffffff;
+  --app-shadow-color: 23, 27, 33;
+  --app-shadow-sm: 0 1px 2px rgba(var(--app-shadow-color), 0.06), 0 1px 1px rgba(var(--app-shadow-color), 0.04);
+  --app-shadow-md: 0 4px 14px rgba(var(--app-shadow-color), 0.08), 0 1px 3px rgba(var(--app-shadow-color), 0.06);
+  --app-radius-sm: 10px;
+  --app-radius-md: 16px;
+  --app-radius-lg: 22px;
+  --app-hero-gradient: linear-gradient(135deg, #2B3542 0%, #3B4759 100%);
+
+  /* --- Tokens del panel de gráficas (dashboard profesional) ---
+     Rampa ordinal de un solo tono para el avance solicitado -> completado,
+     más rojo reservado para "cancelado" como única salida negativa.
+     Validada con el validador de paletas del skill de dataviz. */
+  --chart-status-solicitado: #57c7ad;
+  --chart-status-aceptado: #38a88e;
+  --chart-status-en_curso: #297a67;
+  --chart-status-completado: #1a4d41;
+  --chart-status-cancelado: var(--ion-color-danger);
 
   /* --- Tipografía --- */
   --ion-font-family: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
@@ -52,17 +112,65 @@
    (lo hace ThemeContext.tsx, no un media query del sistema).
    ========================================================== */
 .ion-palette-dark {
-  --ion-background-color: #101826;
-  --ion-background-color-rgb: 16, 24, 38;
-  --ion-text-color: #E7ECEF;
-  --ion-text-color-rgb: 231, 236, 239;
+  --ion-color-primary: #8C99AA;
+  --ion-color-primary-rgb: 140, 153, 170;
+  --ion-color-primary-contrast: #10141A;
+  --ion-color-primary-contrast-rgb: 16, 20, 26;
+  --ion-color-primary-shade: #7B879C;
+  --ion-color-primary-tint: #98A4B4;
 
-  --ion-item-background: #182333;
-  --ion-border-color: #2B3A4D;
+  --ion-color-secondary: #FFB74D;
+  --ion-color-secondary-rgb: 255, 183, 77;
+  --ion-color-secondary-contrast: #1A1300;
+  --ion-color-secondary-contrast-rgb: 26, 19, 0;
+  --ion-color-secondary-shade: #E0A144;
+  --ion-color-secondary-tint: #FFBE5F;
 
-  --ion-toolbar-background: #142033;
-  --ion-tab-bar-background: #101826;
-  --ion-tab-bar-border-color: #2B3A4D;
+  --ion-color-tertiary: #4FAF9B;
+  --ion-color-tertiary-rgb: 79, 175, 155;
+  --ion-color-tertiary-contrast: #06120F;
+  --ion-color-tertiary-contrast-rgb: 6, 18, 15;
+  --ion-color-tertiary-shade: #469A88;
+  --ion-color-tertiary-tint: #61B7A5;
 
-  --ion-card-background: #182333;
+  --ion-color-success: #4CBF7C;
+  --ion-color-success-contrast: #06140B;
+  --ion-color-warning: #F0A94A;
+  --ion-color-warning-contrast: #1A1300;
+  --ion-color-danger: #E17268;
+  --ion-color-danger-contrast: #1A0503;
+
+  --ion-color-medium: #92999F;
+  --ion-color-medium-rgb: 146, 153, 159;
+  --ion-color-light: #2A303A;
+  --ion-color-light-rgb: 42, 48, 58;
+  --ion-color-light-contrast: #ECEEF1;
+
+  --ion-background-color: #14171C;
+  --ion-background-color-rgb: 20, 23, 28;
+  --ion-text-color: #ECEEF1;
+  --ion-text-color-rgb: 236, 238, 241;
+
+  --ion-item-background: #1E232B;
+  --ion-border-color: #2C333D;
+  --ion-toolbar-background: #1A1E25;
+  --ion-toolbar-border-color: #2C333D;
+  --ion-tab-bar-background: #1A1E25;
+  --ion-tab-bar-border-color: #2C333D;
+  --ion-card-background: #1E232B;
+
+  --app-surface: #1E232B;
+  --app-surface-raised: #242A33;
+  --app-shadow-color: 0, 0, 0;
+  --app-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.35);
+  --app-shadow-md: 0 6px 18px rgba(0, 0, 0, 0.45);
+  --app-hero-gradient: linear-gradient(135deg, #1E232B 0%, #2A313C 100%);
+
+  /* El ancla de la rampa se invierte en oscuro: lo más avanzado ("completado")
+     pasa a ser el paso más claro, para que siga resaltando sobre el fondo oscuro. */
+  --chart-status-solicitado: #2A554A;
+  --chart-status-aceptado: #357E6E;
+  --chart-status-en_curso: #4FAF9B;
+  --chart-status-completado: #7FCBB8;
+  --chart-status-cancelado: var(--ion-color-danger);
 }

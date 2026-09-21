@@ -1,14 +1,18 @@
 import {
   IonContent, IonHeader, IonPage, IonTitle, IonToolbar,
-  IonList, IonItem, IonLabel, IonButton, IonIcon, IonBadge, IonText, IonToggle,
+  IonButton, IonIcon, IonToggle, IonText, IonAvatar,
 } from '@ionic/react';
-import { logOutOutline, moonOutline, sunnyOutline } from 'ionicons/icons';
+import {
+  logOutOutline, moonOutline, sunnyOutline, briefcaseOutline,
+  personOutline, createOutline, constructOutline, chevronForwardOutline,
+} from 'ionicons/icons';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
 import { supabase } from '../lib/supabaseClient';
 import { getFriendlyErrorMessage } from '../lib/errorMessages';
+import './Profile.css';
 
 interface ProfileData {
   full_name: string;
@@ -47,49 +51,62 @@ const Profile: React.FC = () => {
   return (
     <IonPage>
       <IonHeader>
-        <IonToolbar color="primary">
-          <IonTitle>Mi perfil</IonTitle>
+        <IonToolbar>
+          <IonTitle className="app-title">Mi perfil</IonTitle>
         </IonToolbar>
       </IonHeader>
-      <IonContent className="ion-padding">
+      <IonContent>
         {error && (
           <IonText color="danger">
-            <p>{error}</p>
+            <p className="ion-padding">{error}</p>
           </IonText>
         )}
 
-        <IonList>
-          <IonItem>
-            <IonLabel>
-              <h2>{profile?.full_name ?? 'Cargando...'}</h2>
-              <p>{user?.email}</p>
-            </IonLabel>
+        <div className="profile-hero app-hero">
+          <IonAvatar className="app-avatar profile-hero__avatar">
+            <img
+              src={`https://api.dicebear.com/7.x/initials/svg?seed=${profile?.full_name ?? '?'}`}
+              alt={profile?.full_name ?? 'Usuario'}
+            />
+          </IonAvatar>
+          <div>
+            <p className="profile-hero__name">{profile?.full_name ?? 'Cargando...'}</p>
+            <p className="profile-hero__email">{user?.email}</p>
             {profile?.role && (
-              <IonBadge color={profile.role === 'profesional' ? 'tertiary' : 'medium'} slot="end">
+              <span className="app-chip profile-hero__role">
+                <IonIcon icon={profile.role === 'profesional' ? briefcaseOutline : personOutline} />
                 {profile.role === 'profesional' ? 'Profesional' : 'Cliente'}
-              </IonBadge>
+              </span>
             )}
-          </IonItem>
+          </div>
+        </div>
 
-          <IonItem>
-            <IonIcon icon={isDark ? moonOutline : sunnyOutline} slot="start" />
-            <IonLabel>Modo noche</IonLabel>
-            <IonToggle checked={isDark} onIonChange={toggleTheme} slot="end" />
-          </IonItem>
-        </IonList>
+        <p className="app-section-label">Preferencias</p>
+        <div className="app-card profile-row">
+          <IonIcon icon={isDark ? moonOutline : sunnyOutline} color="secondary" />
+          <span className="profile-row__label">Modo noche</span>
+          <IonToggle checked={isDark} onIonChange={toggleTheme} />
+        </div>
 
         {profile?.role === 'profesional' && (
           <>
-            <IonButton expand="block" className="ion-margin-top" onClick={() => navigate('/tabs/profile/edit')}>
-              Editar perfil profesional
-            </IonButton>
-            <IonButton expand="block" onClick={() => navigate('/tabs/profile/services')}>
-              Mis servicios
-            </IonButton>
+            <p className="app-section-label">Panel profesional</p>
+            <div className="profile-links">
+              <button type="button" className="app-card profile-row profile-row--link" onClick={() => navigate('/tabs/profile/edit')}>
+                <IonIcon icon={createOutline} color="secondary" />
+                <span className="profile-row__label">Editar perfil profesional</span>
+                <IonIcon icon={chevronForwardOutline} color="medium" />
+              </button>
+              <button type="button" className="app-card profile-row profile-row--link" onClick={() => navigate('/tabs/profile/services')}>
+                <IonIcon icon={constructOutline} color="secondary" />
+                <span className="profile-row__label">Mis servicios</span>
+                <IonIcon icon={chevronForwardOutline} color="medium" />
+              </button>
+            </div>
           </>
         )}
 
-        <IonButton expand="block" color="danger" className="ion-margin-top" onClick={handleSignOut}>
+        <IonButton expand="block" color="danger" fill="outline" className="ion-margin-top ion-padding-horizontal" onClick={handleSignOut}>
           <IonIcon icon={logOutOutline} slot="start" />
           Cerrar sesión
         </IonButton>

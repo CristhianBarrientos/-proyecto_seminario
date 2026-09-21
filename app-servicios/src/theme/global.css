@@ -1,0 +1,212 @@
+/* ==========================================================
+   SISTEMA DE COMPONENTES GLOBAL
+   Clases reutilizables sobre los tokens de variables.css.
+   Se aplican en todas las pantallas para que el rediseño sea
+   consistente sin repetir estilos por página.
+   ========================================================== */
+
+ion-toolbar {
+  --background: var(--ion-toolbar-background);
+  --color: var(--ion-text-color);
+  --border-color: var(--ion-toolbar-border-color);
+}
+
+ion-header {
+  box-shadow: none;
+}
+
+ion-header::after {
+  background-image: none !important;
+  border-bottom: 1px solid var(--ion-toolbar-border-color);
+}
+
+.app-title {
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+.app-title--accent {
+  color: var(--ion-color-secondary);
+}
+
+/* --- Tarjeta base --- */
+.app-card {
+  background: var(--app-surface);
+  border-radius: var(--app-radius-md);
+  box-shadow: var(--app-shadow-sm);
+  border: 1px solid var(--ion-border-color);
+}
+
+/* --- Encabezado de sección --- */
+.app-section-label {
+  margin: 20px 16px 8px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--ion-color-medium);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+/* --- Chip / etiqueta pequeña --- */
+.app-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.app-chip--verified {
+  background: rgba(var(--ion-color-tertiary-rgb), 0.14);
+  color: var(--ion-color-tertiary);
+}
+
+.app-chip--rating {
+  background: rgba(var(--ion-color-secondary-rgb), 0.16);
+  color: var(--ion-color-secondary-shade);
+}
+
+.ion-palette-dark .app-chip--rating {
+  color: var(--ion-color-secondary);
+}
+
+/* --- Precio destacado --- */
+.app-price {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--ion-color-secondary);
+  color: var(--ion-color-secondary-contrast);
+  font-weight: 800;
+  font-size: 0.85rem;
+  padding: 4px 10px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+/* --- Avatar con anillo de verificado --- */
+.app-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: var(--ion-color-light);
+}
+
+.app-avatar--verified {
+  box-shadow: 0 0 0 2px var(--app-surface), 0 0 0 4px var(--ion-color-tertiary);
+}
+
+/* --- Estado vacío --- */
+.app-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 10px;
+  padding: 48px 24px;
+  color: var(--ion-color-medium);
+}
+
+.app-empty ion-icon {
+  font-size: 2.4rem;
+  color: var(--ion-color-medium);
+  opacity: 0.6;
+}
+
+.app-empty h3 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--ion-text-color);
+}
+
+.app-empty p {
+  margin: 0;
+  font-size: 0.85rem;
+  max-width: 280px;
+}
+
+/* --- Botones: menos "pastilla clásica de Ionic", más sólidos --- */
+ion-button {
+  --border-radius: var(--app-radius-sm);
+  --box-shadow: none;
+  font-weight: 700;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+ion-button[fill='solid'] {
+  --box-shadow: var(--app-shadow-sm);
+}
+
+/* --- Inputs: de línea a campo con borde, más moderno --- */
+ion-item {
+  --background: var(--app-surface);
+}
+
+ion-item.app-field {
+  --border-radius: var(--app-radius-sm);
+  --border-width: 1px;
+  --border-color: var(--ion-border-color);
+  --border-style: solid;
+  --inner-border-width: 0;
+  --padding-start: 14px;
+  --inner-padding-end: 14px;
+  --padding-top: 10px;
+  --padding-bottom: 10px;
+  --min-height: 66px;
+  margin-bottom: 14px;
+  border-radius: var(--app-radius-sm);
+}
+
+ion-item.app-field.item-has-focus {
+  --border-color: var(--ion-color-secondary);
+}
+
+ion-item.app-field ion-icon[slot='start'] {
+  margin-top: 2px;
+  margin-inline-end: 12px;
+}
+
+ion-item.app-field ion-label[position='stacked'] {
+  margin-bottom: 8px !important;
+  font-size: 0.78rem;
+  color: var(--ion-color-medium);
+}
+
+ion-item.app-field ion-input,
+ion-item.app-field ion-textarea,
+ion-item.app-field ion-select {
+  font-size: 1rem;
+  --padding-top: 0;
+  --padding-bottom: 0;
+}
+
+/* --- Hero de marca (login, headers destacados) --- */
+.app-hero {
+  border-radius: var(--app-radius-lg);
+  background: var(--app-hero-gradient);
+  color: #fff;
+  padding: 28px 20px;
+  box-shadow: var(--app-shadow-md);
+}
+
+.app-hero-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.14);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 14px;
+}
+
+.app-hero-icon ion-icon {
+  font-size: 1.6rem;
+  color: var(--ion-color-secondary);
+}

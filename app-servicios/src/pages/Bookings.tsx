@@ -1,21 +1,23 @@
-import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonText } from '@ionic/react';
+import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonIcon } from '@ionic/react';
+import { hourglassOutline } from 'ionicons/icons';
 
 const Bookings: React.FC = () => {
   return (
     <IonPage>
       <IonHeader>
-        <IonToolbar color="primary">
-          <IonTitle>Mis solicitudes</IonTitle>
+        <IonToolbar>
+          <IonTitle className="app-title">Mis solicitudes</IonTitle>
         </IonToolbar>
       </IonHeader>
-      <IonContent className="ion-padding">
-        <IonText color="medium">
+      <IonContent>
+        <div className="app-empty" style={{ paddingTop: 72 }}>
+          <IonIcon icon={hourglassOutline} />
+          <h3>Todavía no está listo</h3>
           <p>
-            Aquí vas a poder ver el estado de tus solicitudes de servicio
-            (solicitado, aceptado, completado). Todavía no está construido —
-            es la Fase 5 del roadmap.
+            Acá vas a poder ver el estado de tus solicitudes de servicio
+            (solicitado, aceptado, completado). Es la Fase 5 del roadmap.
           </p>
-        </IonText>
+        </div>
       </IonContent>
     </IonPage>
   );

@@ -1,0 +1,36 @@
+.login-content {
+  --background: var(--ion-background-color);
+}
+
+.login-content::part(scroll) {
+  display: flex;
+  flex-direction: column;
+}
+
+.login-hero {
+  margin: 24px 16px 0;
+  border-radius: 0 0 var(--app-radius-lg) var(--app-radius-lg);
+  margin-top: 0;
+}
+
+.login-hero__title {
+  margin: 0 0 6px;
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+.login-hero__subtitle {
+  margin: 0;
+  font-size: 0.9rem;
+  opacity: 0.85;
+  max-width: 320px;
+}
+
+.login-form {
+  padding: 24px 16px 16px;
+}
+
+.login-form ion-segment {
+  margin-bottom: 20px;
+}

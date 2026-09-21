@@ -2,12 +2,16 @@ import { useEffect, useRef, useState } from 'react';
 import {
   IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonBackButton, IonButtons,
   IonItem, IonLabel, IonTextarea, IonInput, IonButton, IonLoading, IonText, IonNote,
-  IonList, IonIcon,
+  IonIcon,
 } from '@ionic/react';
-import { documentTextOutline, trashOutline, cloudUploadOutline } from 'ionicons/icons';
+import {
+  documentAttachOutline, trashOutline, cloudUploadOutline, personOutline,
+  locationOutline, navigateCircleOutline, checkmarkCircleOutline, shieldCheckmarkOutline,
+} from 'ionicons/icons';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabaseClient';
 import { getFriendlyErrorMessage } from '../lib/errorMessages';
+import './EditProfessionalProfile.css';
 
 interface VerificationDoc {
   path: string;
@@ -136,61 +140,77 @@ const EditProfessionalProfile: React.FC = () => {
   return (
     <IonPage>
       <IonHeader>
-        <IonToolbar color="primary">
+        <IonToolbar>
           <IonButtons slot="start">
             <IonBackButton defaultHref="/tabs/profile" />
           </IonButtons>
           <IonTitle>Perfil profesional</IonTitle>
         </IonToolbar>
       </IonHeader>
-      <IonContent className="ion-padding">
-        <IonItem>
-          <IonLabel position="stacked">Sobre ti / tu experiencia</IonLabel>
-          <IonTextarea value={bio} onIonInput={(e) => setBio(e.detail.value!)} autoGrow />
-        </IonItem>
+      <IonContent>
+        <p className="app-section-label">Sobre ti</p>
+        <div className="app-card edit-pro-block">
+          <IonItem className="app-field" lines="none">
+            <IonIcon icon={personOutline} slot="start" color="medium" />
+            <IonLabel position="stacked">Sobre ti / tu experiencia</IonLabel>
+            <IonTextarea value={bio} onIonInput={(e) => setBio(e.detail.value!)} autoGrow />
+          </IonItem>
+        </div>
 
-        <IonItem>
-          <IonLabel position="stacked">Latitud</IonLabel>
-          <IonInput type="number" value={lat} onIonInput={(e) => setLat(e.detail.value!)} placeholder="ej. 14.6349" />
-        </IonItem>
-        <IonItem>
-          <IonLabel position="stacked">Longitud</IonLabel>
-          <IonInput type="number" value={lng} onIonInput={(e) => setLng(e.detail.value!)} placeholder="ej. -90.5231" />
-        </IonItem>
-        <IonNote className="ion-padding-start">
-          Tip: en Google Maps, clic derecho sobre tu ubicación → copia las coordenadas.
-        </IonNote>
+        <p className="app-section-label">Ubicación y cobertura</p>
+        <div className="app-card edit-pro-block">
+          <IonItem className="app-field" lines="none">
+            <IonIcon icon={locationOutline} slot="start" color="medium" />
+            <IonLabel position="stacked">Latitud</IonLabel>
+            <IonInput type="number" value={lat} onIonInput={(e) => setLat(e.detail.value!)} placeholder="ej. 14.6349" />
+          </IonItem>
+          <IonItem className="app-field" lines="none">
+            <IonIcon icon={locationOutline} slot="start" color="medium" />
+            <IonLabel position="stacked">Longitud</IonLabel>
+            <IonInput type="number" value={lng} onIonInput={(e) => setLng(e.detail.value!)} placeholder="ej. -90.5231" />
+          </IonItem>
+          <IonNote className="edit-pro-note">
+            Tip: en Google Maps, clic derecho sobre tu ubicación → copia las coordenadas.
+          </IonNote>
 
-        <IonItem>
-          <IonLabel position="stacked">Radio de servicio (km)</IonLabel>
-          <IonInput type="number" value={radius} onIonInput={(e) => setRadius(e.detail.value!)} />
-        </IonItem>
+          <IonItem className="app-field" lines="none">
+            <IonIcon icon={navigateCircleOutline} slot="start" color="medium" />
+            <IonLabel position="stacked">Radio de servicio (km)</IonLabel>
+            <IonInput type="number" value={radius} onIonInput={(e) => setRadius(e.detail.value!)} />
+          </IonItem>
+        </div>
 
-        {error && <IonText color="danger"><p>{error}</p></IonText>}
-        {success && <IonText color="success"><p>Perfil guardado correctamente.</p></IonText>}
+        {error && <IonText color="danger"><p className="ion-padding-horizontal">{error}</p></IonText>}
+        {success && (
+          <IonText color="success">
+            <p className="ion-padding-horizontal">
+              <IonIcon icon={checkmarkCircleOutline} style={{ verticalAlign: 'middle', marginRight: 4 }} />
+              Perfil guardado correctamente.
+            </p>
+          </IonText>
+        )}
 
-        <IonButton expand="block" className="ion-margin-top" onClick={handleSave}>
+        <IonButton expand="block" color="secondary" className="ion-margin-horizontal" onClick={handleSave}>
           Guardar
         </IonButton>
 
-        <IonItem className="ion-margin-top" lines="none">
-          <IonLabel>
-            <h2>Documentos de verificación</h2>
-            <p>Sube tu DPI, licencia o certificación para obtener el sello "Verificado".</p>
-          </IonLabel>
-        </IonItem>
+        <p className="app-section-label">
+          <IonIcon icon={shieldCheckmarkOutline} style={{ verticalAlign: 'middle', marginRight: 4 }} />
+          Documentos de verificación
+        </p>
+        <p className="edit-pro-hint">Sube tu DPI, licencia o certificación para obtener el sello "Verificado".</p>
 
-        <IonList>
+        <div className="edit-pro-docs">
           {docs.map((doc) => (
-            <IonItem key={doc.path}>
-              <IonIcon icon={documentTextOutline} slot="start" />
-              <IonLabel>{doc.name}</IonLabel>
-              <IonButton slot="end" fill="clear" color="danger" onClick={() => handleDeleteDoc(doc)}>
-                <IonIcon icon={trashOutline} />
+            <div key={doc.path} className="app-card edit-pro-doc">
+              <IonIcon icon={documentAttachOutline} color="secondary" />
+              <span className="edit-pro-doc__name">{doc.name}</span>
+              <IonButton fill="clear" color="danger" onClick={() => handleDeleteDoc(doc)}>
+                <IonIcon icon={trashOutline} slot="icon-only" />
               </IonButton>
-            </IonItem>
+            </div>
           ))}
-        </IonList>
+        </div>
 
         <input
           ref={fileInputRef}
@@ -205,7 +225,7 @@ const EditProfessionalProfile: React.FC = () => {
         <IonButton
           expand="block"
           fill="outline"
-          className="ion-margin-top"
+          className="ion-margin-horizontal ion-margin-top"
           disabled={uploading}
           onClick={() => fileInputRef.current?.click()}
         >

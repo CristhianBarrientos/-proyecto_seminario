@@ -1,13 +1,17 @@
 import { useEffect, useState } from 'react';
 import {
   IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonBackButton, IonButtons,
-  IonList, IonItem, IonLabel, IonInput, IonSelect, IonSelectOption, IonButton,
+  IonItem, IonLabel, IonInput, IonSelect, IonSelectOption, IonButton,
   IonIcon, IonText, IonLoading, IonToggle,
 } from '@ionic/react';
-import { trashOutline } from 'ionicons/icons';
+import {
+  trashOutline, addCircleOutline, hammerOutline, pricetagOutline,
+  cashOutline, constructOutline, listOutline,
+} from 'ionicons/icons';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabaseClient';
 import { getFriendlyErrorMessage } from '../lib/errorMessages';
+import './MyServices.css';
 
 interface Category {
   id: number;
@@ -109,16 +113,22 @@ const MyServices: React.FC = () => {
   return (
     <IonPage>
       <IonHeader>
-        <IonToolbar color="primary">
+        <IonToolbar>
           <IonButtons slot="start">
             <IonBackButton defaultHref="/tabs/profile" />
           </IonButtons>
           <IonTitle>Mis servicios</IonTitle>
         </IonToolbar>
       </IonHeader>
-      <IonContent className="ion-padding">
-        <IonList>
-          <IonItem>
+      <IonContent>
+        <p className="app-section-label">
+          <IonIcon icon={addCircleOutline} style={{ verticalAlign: 'middle', marginRight: 4 }} />
+          Nuevo servicio
+        </p>
+
+        <div className="app-card myservices-form">
+          <IonItem className="app-field" lines="none">
+            <IonIcon icon={hammerOutline} slot="start" color="medium" />
             <IonLabel position="stacked">Título del servicio</IonLabel>
             <IonInput
               value={title}
@@ -126,7 +136,8 @@ const MyServices: React.FC = () => {
               placeholder="Ej. Instalación eléctrica residencial"
             />
           </IonItem>
-          <IonItem>
+          <IonItem className="app-field" lines="none">
+            <IonIcon icon={constructOutline} slot="start" color="medium" />
             <IonLabel position="stacked">Categoría</IonLabel>
             <IonSelect value={categoryId} onIonChange={(e) => setCategoryId(e.detail.value)}>
               {categories.map((c) => (
@@ -134,11 +145,13 @@ const MyServices: React.FC = () => {
               ))}
             </IonSelect>
           </IonItem>
-          <IonItem>
+          <IonItem className="app-field" lines="none">
+            <IonIcon icon={cashOutline} slot="start" color="medium" />
             <IonLabel position="stacked">Precio (Q)</IonLabel>
             <IonInput type="number" value={price} onIonInput={(e) => setPrice(e.detail.value!)} />
           </IonItem>
-          <IonItem>
+          <IonItem className="app-field" lines="none">
+            <IonIcon icon={pricetagOutline} slot="start" color="medium" />
             <IonLabel position="stacked">Unidad</IonLabel>
             <IonSelect value={priceUnit} onIonChange={(e) => setPriceUnit(e.detail.value)}>
               <IonSelectOption value="servicio">Por servicio</IonSelectOption>
@@ -147,30 +160,50 @@ const MyServices: React.FC = () => {
               <IonSelectOption value="m2">Por m²</IonSelectOption>
             </IonSelect>
           </IonItem>
-        </IonList>
 
-        {error && <IonText color="danger"><p>{error}</p></IonText>}
+          {error && <IonText color="danger"><p className="ion-padding-horizontal">{error}</p></IonText>}
 
-        <IonButton expand="block" onClick={handleAdd}>Agregar servicio</IonButton>
+          <IonButton expand="block" color="secondary" className="ion-margin-top" onClick={handleAdd}>
+            <IonIcon icon={addCircleOutline} slot="start" />
+            Agregar servicio
+          </IonButton>
+        </div>
 
-        <IonList className="ion-margin-top">
+        <p className="app-section-label">
+          <IonIcon icon={listOutline} style={{ verticalAlign: 'middle', marginRight: 4 }} />
+          Tus servicios publicados
+        </p>
+
+        <div className="myservices-list">
           {services.map((s) => (
-            <IonItem key={s.id}>
-              <IonLabel>
-                <h2>{s.title}</h2>
-                <p>Q{s.price} / {s.price_unit}</p>
-              </IonLabel>
-              <IonToggle
-                slot="end"
-                checked={s.is_active}
-                onIonChange={() => handleToggleActive(s.id, s.is_active)}
-              />
-              <IonButton slot="end" fill="clear" color="danger" onClick={() => handleDelete(s.id)}>
-                <IonIcon icon={trashOutline} />
-              </IonButton>
-            </IonItem>
+            <div key={s.id} className="app-card myservices-item">
+              <div className="myservices-item__body">
+                <p className="myservices-item__title">
+                  <IonIcon icon={hammerOutline} />
+                  {s.title}
+                </p>
+                <span className="app-price">Q{s.price} / {s.price_unit}</span>
+              </div>
+              <div className="myservices-item__actions">
+                <IonToggle
+                  checked={s.is_active}
+                  onIonChange={() => handleToggleActive(s.id, s.is_active)}
+                />
+                <IonButton fill="clear" color="danger" onClick={() => handleDelete(s.id)}>
+                  <IonIcon icon={trashOutline} slot="icon-only" />
+                </IonButton>
+              </div>
+            </div>
           ))}
-        </IonList>
+
+          {services.length === 0 && (
+            <div className="app-empty">
+              <IonIcon icon={constructOutline} />
+              <h3>Todavía no publicaste servicios</h3>
+              <p>Agregá el primero con el formulario de arriba.</p>
+            </div>
+          )}
+        </div>
 
         <IonLoading isOpen={loading} message="Guardando..." />
       </IonContent>
