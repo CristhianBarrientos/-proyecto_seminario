@@ -5,6 +5,41 @@
    consistente sin repetir estilos por página.
    ========================================================== */
 
+/* Transición suave al cambiar entre claro/oscuro (ver ThemeContext.tsx).
+   Sin esto, el cambio de paleta es un corte instantáneo y parejo en toda
+   la pantalla - antipático a la vista. La clase se agrega justo antes de
+   togglear .ion-palette-dark y se saca sola ~350ms después, así el resto
+   del tiempo las transiciones propias de cada componente (hover de
+   botones, cards, etc.) siguen funcionando sin interferencia del !important. */
+.theme-transitioning,
+.theme-transitioning * {
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease,
+    border-color 0.3s ease,
+    box-shadow 0.3s ease,
+    fill 0.3s ease,
+    stroke 0.3s ease !important;
+}
+
+/* Fade al cambiar de pestaña (Explorar/Solicitudes/Perfil). Ionic oculta
+   la pestaña inactiva con display:none (.ion-page-hidden) y solo cambia
+   a display:flex la que se activa - sin ninguna animación propia. Una
+   `animation` (a diferencia de una `transition`) SÍ se vuelve a disparar
+   sola cada vez que un elemento pasa de display:none a visible, así que
+   alcanza con esto, sin tocar el router ni el switch de tabs a mano. De
+   paso también suaviza el push/pop entre páginas (perfil -> editar
+   perfil, etc.), sumándose a la animación de slide que ya trae Ionic sin
+   pisarla (una anima opacity, la otra transform).  */
+.ion-page:not(.ion-page-hidden) {
+  animation: ion-page-fade-in 0.28s ease;
+}
+
+@keyframes ion-page-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
 ion-toolbar {
   --background: var(--ion-toolbar-background);
   --color: var(--ion-text-color);
