@@ -183,18 +183,26 @@ ion-item.app-field ion-icon[slot='start'] {
   margin-inline-end: 12px;
 }
 
-ion-item.app-field ion-label[position='stacked'] {
-  margin-bottom: 8px !important;
+/* Ionic no refleja la prop `position="stacked"` como atributo HTML - el
+   selector de atributo [position='stacked'] nunca matchea nada. La clase
+   real que Stencil aplica es `.label-stacked`. Sin esta corrección, el
+   margen de separación de acá abajo simplemente no se aplicaba nunca. */
+ion-item.app-field ion-label.label-stacked {
+  margin-bottom: 6px;
   font-size: 0.78rem;
   color: var(--ion-color-medium);
 }
 
+/* El padding-top del control es lo que realmente separa el label del
+   campo (el margin-bottom del label de arriba no alcanza a empujarlo
+   solo) - en 0 quedaban pegados/superpuestos, medido en vivo con -5px
+   de gap real entre el label y el input en cada campo de la app. */
 ion-item.app-field ion-input,
 ion-item.app-field ion-textarea,
 ion-item.app-field ion-select {
   font-size: 1rem;
-  --padding-top: 0;
-  --padding-bottom: 0;
+  --padding-top: 10px;
+  --padding-bottom: 2px;
 }
 
 /* --- Hero de marca (login, headers destacados) --- */
