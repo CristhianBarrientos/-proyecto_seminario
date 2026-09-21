@@ -32,6 +32,21 @@ interface Category {
   name: string;
 }
 
+// supabase-js infiere `categories ( name )` como relación "a muchos" ({name}[])
+// a partir del string del select, sin poder ver que category_id es en realidad
+// una FK "a uno" - en runtime siempre llega como objeto único (o null), nunca
+// array. Este tipo describe la forma real de la fila cruda para poder castear
+// sin pelear con la inferencia automática de supabase-js.
+interface RawServiceRow {
+  id: string;
+  title: string;
+  price: number;
+  price_unit: string;
+  category_id: number;
+  professional_id: string;
+  categories: { name: string } | null;
+}
+
 const Home: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -73,7 +88,7 @@ const Home: React.FC = () => {
         return;
       }
 
-      const rawServices = servicesResult.data ?? [];
+      const rawServices = (servicesResult.data ?? []) as unknown as RawServiceRow[];
       const professionalIds = [...new Set(rawServices.map((s) => s.professional_id))];
 
       const [profProfilesResult, profilesResult] = professionalIds.length

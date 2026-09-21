@@ -139,7 +139,10 @@ ion-button {
   letter-spacing: 0;
 }
 
-ion-button[fill='solid'] {
+/* Mismo problema que el de los labels: `fill` tampoco se refleja como
+   atributo HTML en <ion-button> (confirmado en vivo: getAttribute('fill')
+   da null incluso en un botón solid) - la clase real es `.button-solid`. */
+ion-button.button-solid {
   --box-shadow: var(--app-shadow-sm);
 }
 
@@ -203,6 +206,107 @@ ion-item.app-field ion-select {
   font-size: 1rem;
   --padding-top: 10px;
   --padding-bottom: 2px;
+}
+
+/* --- Botón de mostrar/ocultar contraseña --- */
+.password-toggle {
+  background: none;
+  border: none;
+  padding: 8px;
+  margin-inline-start: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: inherit;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Wrapper con `key` distinto en cada toggle - el remount es lo que
+   dispara las animaciones de nuevo en cada click, sin timers en JS. */
+.password-toggle__pulse {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Anillo de color que se expande y se desvanece detrás del ícono. */
+.password-toggle__pulse::after {
+  content: '';
+  position: absolute;
+  inset: -7px;
+  border-radius: 50%;
+  background: var(--ion-color-secondary);
+  opacity: 0;
+  animation: password-toggle-ring 0.5s ease-out;
+  pointer-events: none;
+}
+
+@keyframes password-toggle-ring {
+  0% { opacity: 0.45; transform: scale(0.3); }
+  100% { opacity: 0; transform: scale(1.8); }
+}
+
+/* Rebote + giro bien marcado, para que el cambio se note de un vistazo. */
+.password-toggle__icon {
+  font-size: 1.25rem;
+  animation: password-toggle-blink 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes password-toggle-blink {
+  0% { transform: scale(1) rotate(0deg); }
+  30% { transform: scale(0.65) rotate(-12deg); }
+  60% { transform: scale(1.35) rotate(10deg); }
+  80% { transform: scale(0.92) rotate(-4deg); }
+  100% { transform: scale(1) rotate(0deg); }
+}
+
+/* Nota: el ion-input real NO lleva animación propia a propósito. La
+   capa de letras (más abajo) ya hace la animación de reaparición; el
+   input real solo se muestra DESPUÉS de que esa capa terminó y
+   desapareció. Si el input tuviera su propia animación de entrada
+   (como tenía antes: partía de scale(0.94)), se ve un salto de escala
+   justo en el hand-off entre la capa de letras (que termina en escala
+   1) y el input (que arrancaría de nuevo achicado) - motivo por el que
+   se sacó.
+   Ver también .password-letter más abajo. */
+
+/* --- Revelado letra por letra: combo "rodillo" (cae verticalmente) +
+   "onda de enfoque" (entra borrosa y enfoca), en cascada por índice.
+   Reemplaza al input real solo durante los ~500ms+stagger de la
+   animación (ver letterAnim en Login.tsx); el input nativo vuelve
+   después, así el autocompletado/gestor de contraseñas del navegador
+   no se ve afectado el resto del tiempo. */
+.password-letters {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 3px;
+  font-size: 1rem;
+  overflow: hidden;
+  min-height: 20px;
+  /* El espaciado ancho es parte del efecto durante el reveal - lo que
+     no puede ser instantáneo es CERRARLO. Esta transition es lo que
+     hace que, al agregar `.password-letters--settle` (ver Login.tsx),
+     el gap se achique de forma suave en vez de saltar de golpe al
+     espaciado normal del input real que aparece justo después. */
+  transition: gap 0.25s ease;
+}
+
+.password-letters--settle {
+  gap: 0px;
+}
+
+.password-letter {
+  display: inline-block;
+  animation: password-letter-reveal 0.45s cubic-bezier(0.22, 0.9, 0.32, 1) both;
+}
+
+@keyframes password-letter-reveal {
+  0% { transform: translateY(-65%); opacity: 0; filter: blur(5px); }
+  60% { filter: blur(1px); }
+  100% { transform: translateY(0); opacity: 1; filter: blur(0); }
 }
 
 /* --- Hero de marca (login, headers destacados) --- */

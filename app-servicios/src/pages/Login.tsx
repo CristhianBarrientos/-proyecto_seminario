@@ -4,7 +4,10 @@ import {
   IonItem, IonLabel, IonInput, IonButton, IonSegment,
   IonSegmentButton, IonSelect, IonSelectOption, IonText, IonLoading, IonIcon,
 } from '@ionic/react';
-import { hammerOutline, mailOutline, lockClosedOutline, personOutline, briefcaseOutline } from 'ionicons/icons';
+import {
+  hammerOutline, mailOutline, lockClosedOutline, personOutline, briefcaseOutline,
+  eyeOutline, eyeOffOutline,
+} from 'ionicons/icons';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabaseClient';
 import { getFriendlyErrorMessage } from '../lib/errorMessages';
@@ -21,6 +24,9 @@ const Login: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [touched, setTouched] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [letterAnim, setLetterAnim] = useState(false);
+  const [letterSettle, setLetterSettle] = useState(false);
 
   const emailInvalid = touched && !isValidEmail(email);
   const passwordInvalid = touched && password.trim().length < MIN_PASSWORD_LENGTH;
@@ -150,7 +156,48 @@ const Login: React.FC = () => {
           <IonItem className={fieldClass(passwordInvalid)}>
             <IonIcon icon={lockClosedOutline} slot="start" color="medium" />
             <IonLabel position="stacked">Contraseña *</IonLabel>
-            <IonInput type="password" value={password} onIonInput={(e) => setPassword(e.detail.value!)} />
+            {letterAnim ? (
+              <div className={`password-letters${letterSettle ? ' password-letters--settle' : ''}`} aria-hidden="true">
+                {[...(showPassword ? password : '•'.repeat(password.length))].map((ch, i) => (
+                  <span key={i} className="password-letter" style={{ animationDelay: `${i * 35}ms` }}>
+                    {ch}
+                  </span>
+                ))}
+              </div>
+            ) : (
+              <IonInput
+                key={showPassword ? 'text' : 'password'}
+                type={showPassword ? 'text' : 'password'}
+                value={password}
+                onIonInput={(e) => setPassword(e.detail.value!)}
+                className="password-input"
+              />
+            )}
+            <button
+              type="button"
+              className="password-toggle"
+              aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+              onClick={() => {
+                setShowPassword((v) => !v);
+                setLetterAnim(true);
+                setLetterSettle(false);
+                // 1) las letras revelan en cascada con su espaciado ancho,
+                // 2) ese espaciado se cierra suave (transition en CSS),
+                // 3) recién ahí vuelve el input real - nunca un corte.
+                const revealDuration = password.length * 35 + 450;
+                window.setTimeout(() => setLetterSettle(true), revealDuration);
+                window.setTimeout(() => setLetterAnim(false), revealDuration + 260);
+              }}
+              slot="end"
+            >
+              <span className="password-toggle__pulse" key={showPassword ? 'open' : 'closed'}>
+                <IonIcon
+                  icon={showPassword ? eyeOutline : eyeOffOutline}
+                  color="medium"
+                  className="password-toggle__icon"
+                />
+              </span>
+            </button>
           </IonItem>
           {passwordInvalid && (
             <IonText color="danger">
