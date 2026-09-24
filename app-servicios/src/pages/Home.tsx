@@ -60,16 +60,25 @@ const Home: React.FC = () => {
 
   useEffect(() => {
     if (!user) return;
+    let cancelled = false;
 
     supabase
       .from('profiles')
       .select('role')
       .eq('id', user.id)
       .single()
-      .then(({ data }) => setRole(data?.role ?? null));
+      .then(({ data }) => {
+        if (!cancelled) setRole(data?.role ?? null);
+      });
+
+    return () => {
+      cancelled = true;
+    };
   }, [user]);
 
   useEffect(() => {
+    let cancelled = false;
+
     const fetchData = async () => {
       // professional_profiles/profiles ya no son legibles para terceros (RLS: solo el
       // dueño ve su propia fila) - el feed público lee de las vistas *_public en vez de
@@ -83,8 +92,10 @@ const Home: React.FC = () => {
       ]);
 
       if (servicesResult.error) {
-        setError(getFriendlyErrorMessage(servicesResult.error));
-        setLoading(false);
+        if (!cancelled) {
+          setError(getFriendlyErrorMessage(servicesResult.error));
+          setLoading(false);
+        }
         return;
       }
 
@@ -118,12 +129,18 @@ const Home: React.FC = () => {
         },
       }));
 
-      setServices(merged);
-      setCategories(categoriesResult.data ?? []);
-      setLoading(false);
+      if (!cancelled) {
+        setServices(merged);
+        setCategories(categoriesResult.data ?? []);
+        setLoading(false);
+      }
     };
 
     fetchData();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const filteredServices = useMemo(() => {

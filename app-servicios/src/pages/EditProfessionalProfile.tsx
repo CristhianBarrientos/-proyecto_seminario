@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import {
   IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonBackButton, IonButtons,
   IonItem, IonLabel, IonTextarea, IonInput, IonButton, IonLoading, IonText, IonNote,
@@ -24,6 +25,8 @@ const ALLOWED_DOC_TYPES = ['application/pdf', 'image/png', 'image/jpeg', 'image/
 
 const EditProfessionalProfile: React.FC = () => {
   const { user } = useAuth();
+  const location = useLocation();
+  const cameFromIncompleteProfile = (location.state as { reason?: string } | null)?.reason === 'complete-profile-first';
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [bio, setBio] = useState('');
   const [lat, setLat] = useState('');
@@ -161,7 +164,12 @@ const EditProfessionalProfile: React.FC = () => {
   const handleDeleteDoc = async (doc: VerificationDoc) => {
     if (!user) return;
 
-    await supabase.storage.from('verification-docs').remove([doc.path]);
+    const { error: removeError } = await supabase.storage.from('verification-docs').remove([doc.path]);
+
+    if (removeError) {
+      setError(getFriendlyErrorMessage(removeError));
+      return;
+    }
 
     const newDocs = docs.filter((d) => d.path !== doc.path);
 
@@ -188,6 +196,13 @@ const EditProfessionalProfile: React.FC = () => {
         </IonToolbar>
       </IonHeader>
       <IonContent>
+        {cameFromIncompleteProfile && (
+          <IonText color="warning">
+            <p className="ion-padding-horizontal">
+              Completá y guardá tu perfil profesional antes de publicar servicios.
+            </p>
+          </IonText>
+        )}
         <p className="app-section-label">Sobre ti</p>
         <div className="app-card edit-pro-block">
           <IonItem className="app-field" lines="none">
