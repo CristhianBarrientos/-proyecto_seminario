@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import {
   IonContent, IonHeader, IonPage, IonTitle, IonToolbar,
-  IonAvatar, IonIcon,
+  IonIcon,
   IonSearchbar, IonSpinner, IonText, IonSelect, IonSelectOption,
 } from '@ionic/react';
 import { shieldCheckmarkOutline, hammerOutline, funnelOutline, cashOutline, searchOutline } from 'ionicons/icons';
@@ -10,6 +10,7 @@ import { supabase } from '../lib/supabaseClient';
 import { getFriendlyErrorMessage } from '../lib/errorMessages';
 import { useAuth } from '../contexts/AuthContext';
 import ProfessionalDashboard from '../components/ProfessionalDashboard';
+import ProfessionalAvatar from '../components/ProfessionalAvatar';
 import './Home.css';
 
 interface ServiceFeedItem {
@@ -236,12 +237,10 @@ const Home: React.FC = () => {
                 }
               }}
             >
-              <IonAvatar className={`app-avatar${s.professional_profiles?.is_verified ? ' app-avatar--verified' : ''}`}>
-                <img
-                  src={`https://api.dicebear.com/7.x/initials/svg?seed=${s.professional_profiles?.profiles?.full_name ?? '?'}`}
-                  alt={s.professional_profiles?.profiles?.full_name ?? 'Profesional'}
-                />
-              </IonAvatar>
+              <ProfessionalAvatar
+                fullName={s.professional_profiles?.profiles?.full_name}
+                isVerified={s.professional_profiles?.is_verified ?? false}
+              />
 
               <div className="service-card__body">
                 <p className="service-card__name">{s.professional_profiles?.profiles?.full_name ?? 'Profesional'}</p>

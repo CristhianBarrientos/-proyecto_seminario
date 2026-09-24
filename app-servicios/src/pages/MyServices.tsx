@@ -12,6 +12,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabaseClient';
 import { getFriendlyErrorMessage } from '../lib/errorMessages';
 import { isPositiveNumber } from '../lib/validation';
+import { PRICE_UNITS, DEFAULT_PRICE_UNIT, type PriceUnit } from '../lib/constants';
 import './MyServices.css';
 
 interface Category {
@@ -34,7 +35,7 @@ const MyServices: React.FC = () => {
   const [services, setServices] = useState<ServiceRow[]>([]);
   const [title, setTitle] = useState('');
   const [price, setPrice] = useState('');
-  const [priceUnit, setPriceUnit] = useState('servicio');
+  const [priceUnit, setPriceUnit] = useState<PriceUnit>(DEFAULT_PRICE_UNIT);
   const [categoryId, setCategoryId] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -204,10 +205,9 @@ const MyServices: React.FC = () => {
             <IonIcon icon={pricetagOutline} slot="start" color="medium" />
             <IonLabel position="stacked">Unidad</IonLabel>
             <IonSelect value={priceUnit} onIonChange={(e) => setPriceUnit(e.detail.value)}>
-              <IonSelectOption value="servicio">Por servicio</IonSelectOption>
-              <IonSelectOption value="hora">Por hora</IonSelectOption>
-              <IonSelectOption value="dia">Por día</IonSelectOption>
-              <IonSelectOption value="m2">Por m²</IonSelectOption>
+              {PRICE_UNITS.map((u) => (
+                <IonSelectOption key={u.value} value={u.value}>{u.label}</IonSelectOption>
+              ))}
             </IonSelect>
           </IonItem>
 
