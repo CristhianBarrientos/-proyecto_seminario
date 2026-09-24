@@ -39,6 +39,7 @@ const ProfessionalDetail: React.FC = () => {
 
   useEffect(() => {
     if (!id) return;
+    let cancelled = false;
 
     const load = async () => {
       // professional_profiles/profiles ya no son legibles para terceros (RLS: solo el
@@ -66,6 +67,8 @@ const ProfessionalDetail: React.FC = () => {
           .maybeSingle(),
       ]);
 
+      if (cancelled) return;
+
       if (profProfileResult.error) {
         setError(getFriendlyErrorMessage(profProfileResult.error));
         setLoading(false);
@@ -86,6 +89,10 @@ const ProfessionalDetail: React.FC = () => {
     };
 
     load();
+
+    return () => {
+      cancelled = true;
+    };
   }, [id]);
 
   return (

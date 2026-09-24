@@ -39,6 +39,7 @@ const MyServices: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [touched, setTouched] = useState(false);
+  const [pendingIds, setPendingIds] = useState<Set<string>>(new Set());
 
   const titleInvalid = touched && title.trim().length < 3;
   const categoryInvalid = touched && !categoryId;
@@ -72,6 +73,7 @@ const MyServices: React.FC = () => {
   }, [user]);
 
   const handleAdd = async () => {
+    if (loading) return; // evita doble submit si el click llega antes del re-render
     setTouched(true);
 
     if (!user) return;
@@ -112,23 +114,51 @@ const MyServices: React.FC = () => {
     loadServices();
   };
 
-  const handleDelete = async (id: string) => {
-    const { error } = await supabase.from('services').delete().eq('id', id);
-    if (error) {
-      setError(getFriendlyErrorMessage(error));
-      return;
+  const withPending = async (id: string, fn: () => Promise<void>) => {
+    if (pendingIds.has(id)) return; // ya hay una operación en curso para esta fila
+    setPendingIds((prev) => new Set(prev).add(id));
+    try {
+      await fn();
+    } finally {
+      setPendingIds((prev) => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
     }
-    loadServices();
   };
 
-  const handleToggleActive = async (id: string, current: boolean) => {
-    const { error } = await supabase.from('services').update({ is_active: !current }).eq('id', id);
+  const handleDelete = (id: string) => withPending(id, async () => {
+    // RLS bloqueado responde 200 con 0 filas afectadas, no un error: hay que
+    // chequear explícitamente que sí se borró algo antes de darlo por bueno.
+    const { data, error } = await supabase.from('services').delete().eq('id', id).select('id');
     if (error) {
       setError(getFriendlyErrorMessage(error));
       return;
     }
+    if (!data || data.length === 0) {
+      setError('No se pudo eliminar el servicio (no tenés permiso o ya no existe).');
+      return;
+    }
     loadServices();
-  };
+  });
+
+  const handleToggleActive = (id: string, current: boolean) => withPending(id, async () => {
+    const { data, error } = await supabase
+      .from('services')
+      .update({ is_active: !current })
+      .eq('id', id)
+      .select('id');
+    if (error) {
+      setError(getFriendlyErrorMessage(error));
+      return;
+    }
+    if (!data || data.length === 0) {
+      setError('No se pudo actualizar el servicio (no tenés permiso o ya no existe).');
+      return;
+    }
+    loadServices();
+  });
 
   return (
     <IonPage>
@@ -183,7 +213,7 @@ const MyServices: React.FC = () => {
 
           {error && <IonText color="danger"><p className="ion-padding-horizontal">{error}</p></IonText>}
 
-          <IonButton expand="block" color="secondary" className="ion-margin-top" onClick={handleAdd}>
+          <IonButton expand="block" color="secondary" className="ion-margin-top" onClick={handleAdd} disabled={loading}>
             <IonIcon icon={addCircleOutline} slot="start" />
             Agregar servicio
           </IonButton>
@@ -207,9 +237,15 @@ const MyServices: React.FC = () => {
               <div className="myservices-item__actions">
                 <IonToggle
                   checked={s.is_active}
+                  disabled={pendingIds.has(s.id)}
                   onIonChange={() => handleToggleActive(s.id, s.is_active)}
                 />
-                <IonButton fill="clear" color="danger" onClick={() => handleDelete(s.id)}>
+                <IonButton
+                  fill="clear"
+                  color="danger"
+                  disabled={pendingIds.has(s.id)}
+                  onClick={() => handleDelete(s.id)}
+                >
                   <IonIcon icon={trashOutline} slot="icon-only" />
                 </IonButton>
               </div>

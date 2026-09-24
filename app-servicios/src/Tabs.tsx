@@ -7,6 +7,30 @@ import Profile from './pages/Profile';
 import EditProfessionalProfile from './pages/EditProfessionalProfile';
 import MyServices from './pages/MyServices';
 import ProfessionalDetail from './pages/ProfessionalDetail';
+import { useAuth } from './contexts/AuthContext';
+
+// Rutas que solo tienen sentido para el rol "profesional" (formularios de
+// perfil/servicios profesionales). Un cliente que navega ahí por URL directa
+// termina con errores confusos de RLS/FK en vez de un simple redirect.
+const ProfessionalOnly: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { role } = useAuth();
+  if (role !== null && role !== 'profesional') {
+    return <Navigate to="/tabs/profile" replace />;
+  }
+  return <>{children}</>;
+};
+
+// "Mis servicios" depende de una fila en professional_profiles (services.professional_id
+// la referencia por FK, no a profiles.id) - un profesional que nunca completó "Editar
+// perfil profesional" chocaba acá con un 23503 genérico ("Falta información relacionada
+// necesaria...") en vez de un mensaje que le diga qué le falta.
+const RequiresProfessionalProfile: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { hasProfessionalProfile } = useAuth();
+  if (hasProfessionalProfile === false) {
+    return <Navigate to="/tabs/profile/edit" replace state={{ reason: 'complete-profile-first' }} />;
+  }
+  return <>{children}</>;
+};
 
 const Tabs: React.FC = () => {
   return (
@@ -16,8 +40,24 @@ const Tabs: React.FC = () => {
         <Route path="/tabs/home/:id" element={<ProfessionalDetail />} />
         <Route path="/tabs/bookings" element={<Bookings />} />
         <Route path="/tabs/profile" element={<Profile />} />
-        <Route path="/tabs/profile/edit" element={<EditProfessionalProfile />} />
-        <Route path="/tabs/profile/services" element={<MyServices />} />
+        <Route
+          path="/tabs/profile/edit"
+          element={
+            <ProfessionalOnly>
+              <EditProfessionalProfile />
+            </ProfessionalOnly>
+          }
+        />
+        <Route
+          path="/tabs/profile/services"
+          element={
+            <ProfessionalOnly>
+              <RequiresProfessionalProfile>
+                <MyServices />
+              </RequiresProfessionalProfile>
+            </ProfessionalOnly>
+          }
+        />
         <Route path="/tabs" element={<Navigate to="/tabs/home" replace />} />
       </IonRouterOutlet>
 
