@@ -2,11 +2,12 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import {
   IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonBackButton, IonButtons,
-  IonAvatar, IonIcon, IonText, IonSpinner,
+  IonIcon, IonText, IonSpinner,
 } from '@ionic/react';
 import { shieldCheckmarkOutline, star, hammerOutline, constructOutline, informationCircleOutline, timeOutline } from 'ionicons/icons';
 import { supabase } from '../lib/supabaseClient';
 import { getFriendlyErrorMessage } from '../lib/errorMessages';
+import ProfessionalAvatar from '../components/ProfessionalAvatar';
 import './ProfessionalDetail.css';
 
 interface ServiceItem {
@@ -118,12 +119,11 @@ const ProfessionalDetail: React.FC = () => {
           <>
             <div className="pro-detail-hero app-hero">
               <div className="pro-detail-hero__row">
-                <IonAvatar className={`app-avatar pro-detail-hero__avatar${professional.is_verified ? ' app-avatar--verified' : ''}`}>
-                  <img
-                    src={`https://api.dicebear.com/7.x/initials/svg?seed=${professional.profiles?.full_name ?? '?'}`}
-                    alt={professional.profiles?.full_name ?? 'Profesional'}
-                  />
-                </IonAvatar>
+                <ProfessionalAvatar
+                  fullName={professional.profiles?.full_name}
+                  isVerified={professional.is_verified}
+                  className="pro-detail-hero__avatar"
+                />
                 <div>
                   <h1 className="pro-detail-hero__name">{professional.profiles?.full_name ?? 'Profesional'}</h1>
                   <div className="pro-detail-hero__badges">
